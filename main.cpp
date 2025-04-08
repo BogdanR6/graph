@@ -4,7 +4,7 @@
 #include "interface/directedGraph.hpp"
 #include <queue>
 
-int lowest_length_bfs(graph::DirectedGraph<int>& g, int start, int end) {
+int lowest_length_fbfs(graph::DirectedGraph<int>& g, int start, int end) {
   std::unordered_map<int, bool> visited;
   std::unordered_map<int, int> distance;  // Stores the shortest distance from start to each node
   std::queue<int> q;
@@ -29,9 +29,36 @@ int lowest_length_bfs(graph::DirectedGraph<int>& g, int start, int end) {
     }
   }
 
-  return 999;
+  return 999; //inf
 }
 
+int lowest_length_bbfs(graph::DirectedGraph<int>& g, int start, int end) {
+  std::unordered_map<int, bool> visited;
+  std::unordered_map<int, int> distance;  // Stores the shortest distance from start to each node
+  std::queue<int> q;
+
+  distance[end] = 0;
+  visited[end] = true;
+  q.push(end);
+  while (!q.empty()) {
+    int t = q.front();
+    q.pop();
+
+    for (const auto& v : g.getInboundEdges(t)) {
+      // If we have reached the end node, return the distance
+      if (v == start)
+        return distance[t] + 1;
+
+      if (!visited[v]) {
+        visited[v] = true;
+        distance[v] = distance[t] + 1;
+        q.push(v);
+      }
+    }
+  }
+
+  return 999; // inf
+}
 
 int main() {
 	graph::DirectedGraph<int> g;
@@ -54,6 +81,7 @@ int main() {
 	}
 
 	std::cout << '\n';
-	std::cout << lowest_length_bfs(g, 1, 2) << '\n';
+	std::cout << lowest_length_fbfs(g, 1, 2) << '\n';
+	std::cout << lowest_length_bbfs(g, 1, 2) << '\n';
 	return 0;
 }
