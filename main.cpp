@@ -14,24 +14,26 @@ int main() {
 	g.addVertex(6);
 	g.addVertex(7);
 
-	g.addWEdge(1, 2, 10);
-	g.addWEdge(1, 3, 10);
-	g.addWEdge(1, 4, 10);
+	g.addEdge(1, 2);
+	g.addEdge(1, 3);
+	g.addEdge(1, 4);
 
-	g.addWEdge(5, 2, 10);
-	g.addWEdge(6, 2, 10);
+	g.addEdge(5, 2);
+	g.addEdge(6, 2);
 
 	for (const auto& v : g) {
 		std::cout << v << ' ';
 	}
 	std::cout << '\n';
-	// for (const auto& v : g.getOutboundEdges(1)) {
-	// 	std::cout << v << ' ';
-	// }
-	// std::cout << '\n';
-	// for (const auto& v : g.getInboundEdges(2)) {
-	// 	std::cout << v << ' ';
-	// }
-	// std::cout << '\n';
+	std::cout << g.getInDegree(2) << '\n';
+	std::cout << g.getOutDegree(1) << '\n';
+	for (const auto& v : g.getOutboundEdges(1)) {
+		std::cout << v << ' ';
+	}
+	std::cout << '\n';
+	for (const auto& v : g.getInboundEdges(2)) {
+		std::cout << v << ' ';
+	}
+	std::cout << '\n';
 	return 0;
 }
