@@ -28,10 +28,12 @@ namespace graph {
 		Iterator end();
 	};
 
+
 	template <typename T>
 	bool Graph<T>::isVertex(T v) {
 		return adjacency.find(v) != adjacency.end();
 	}
+
 
 	template <typename T>
 	bool Graph<T>::isEdge(T v1, T v2) {
@@ -39,6 +41,7 @@ namespace graph {
 				 	 isVertex(v2) &&
 					 adjacency[v1].find(v2) != adjacency[v1].end();
 	}
+
 	
 	template <typename T>
 	void Graph<T>::addVertex(T v) {
@@ -60,6 +63,7 @@ namespace graph {
 		adjacency.erase(v);
 	}
 
+
 	template <typename T>
 	void Graph<T>::addEdge(T v1, T v2) {
 		if (!isVertex(v1))
@@ -68,6 +72,23 @@ namespace graph {
 			throw std::runtime_error("v2 is not in the graph");
 		if (isEdge(v1, v2))
 			throw std::runtime_error("The edge already exists");
+		
+		adjacency[v1].insert(v2);
+		adjacency[v2].insert(v1);
+	}
+	
+
+	template <typename T>
+	void Graph<T>::removeEdge(T v1, T v2) {
+		if (!isVertex(v1))
+			throw std::runtime_error("v1 is not in the graph");
+		if (!isVertex(v2))
+			throw std::runtime_error("v2 is not in the graph");
+		if (!isEdge(v1, v2))
+			throw std::runtime_error("The edge does not exist");
+		
+		adjacency[v1].erase(v2);
+		adjacency[v2].erase(v1);
 	}
 	
 
