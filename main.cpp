@@ -73,26 +73,32 @@ int lowestLengthBBfs(graph::DirectedGraph<int>& g, int start, int end) {
 
 // 3. Write a program that finds the connected components of an undirected graph 
 // using a depth-first traversal of the graph. 
-std::vector<std::unordered_set<int>> getConnectedComponentsDFS(graph::UndirectedGraph<int> g) {
-  std::vector<std::unordered_set<int>> components;
+std::vector<graph::UndirectedGraph<int>> getConnectedComponentsDFS(graph::UndirectedGraph<int> g) {
+  std::vector<graph::UndirectedGraph<int>> components;
+
   int component_index = 0;
   std::unordered_map<int, bool> visited;
+
   for (const auto& v : g) {
     if (visited[v])
       continue;
+
     std::stack<int> stk;
     stk.push(v);
-    visited[v] = true;
-    components.push_back(std::unordered_set<int>());
-    components[component_index].insert(v);
+    components.push_back(graph::UndirectedGraph<int>());
+    components[component_index].addVertex(v);
     while (!stk.empty()) {
       int top = stk.top();
       stk.pop();
+      if (visited[top])
+	continue;
+      visited[top] = true;
       for (const auto& adj : g.getAdjacentVertices(top)) {
         if (!visited[adj]) {
           stk.push(adj);
-          visited[adj] = true;
-          components[component_index].insert(adj);
+	  if (!components[component_index].isVertex(adj))
+	    components[component_index].addVertex(adj);
+	  components[component_index].addEdge(top, adj);
         }
       }
     }
@@ -218,9 +224,20 @@ int main() {
       g = getGraphFromFile(filePath);
       break;
     }
-    case 10:
-      std::cout << "Not implemented\n";
+    case 10: {
+      int i = 1;
+      for (const auto& grph : getConnectedComponentsDFS(g)) {
+	std::cout << "Component " << i++ << '\n';
+	int i2 = 1;
+	for (const auto& v : grph) {
+	    std::cout << v << ' ';
+	    if (i2++ % 30 == 0)
+	      std::cout << '\n';
+	}
+	std::cout << '\n';
+      }
       break;
+    }
     case 11:
       std::cout << "Not implemented\n";
       break;
