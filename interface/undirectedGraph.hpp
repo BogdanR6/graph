@@ -2,22 +2,28 @@
 #include "graph.hpp"
 
 namespace graph {
+
+  template <typename T>
+  class AdjacentVerticesIterator;
+
   template <typename T>
   class UndirectedGraph : public Graph<T>{
   private:
     std::unordered_map<T, std::unordered_set<T>> adjacency;	
-  std::unordered_set<T> vertices;
+    std::unordered_set<T> vertices;
+    friend class AdjacentVerticesIterator<T>;
   public:
-      UndirectedGraph() {}
       bool isVertex(const T& v) const override;
       bool isEdge(const T& from, const T& to) const override;
       void addVertex(const T& v) override;
       void removeVertex(const T& v) override;
       void addEdge(const T& from, const T& to) override;
       void removeEdge(const T& from, const T& to) override;
-
       std::unordered_set<T>::const_iterator begin() const override;
       std::unordered_set<T>::const_iterator end() const override;
+
+      UndirectedGraph() {}
+      AdjacentVerticesIterator<T> getAdjacentVertices(const T& v);
     };
 
 
@@ -95,4 +101,24 @@ namespace graph {
     std::unordered_set<T>::const_iterator UndirectedGraph<T>::end() const {
       return vertices.end();
     }
+
+    template <typename T>
+    AdjacentVerticesIterator<T> UndirectedGraph<T>::getAdjacentVertices(const T& v) {
+      return AdjacentVerticesIterator<T>(*this, v); 
+    }
+
+    template <typename T>
+    class AdjacentVerticesIterator {
+    private:
+      const UndirectedGraph<T>& graph;
+      const T& vertex;
+    public:
+      AdjacentVerticesIterator(const UndirectedGraph<T>& graph, const T& v) : graph(graph), vertex(v) {}
+      std::unordered_set<T>::const_iterator begin() const {
+        return graph.adjacency.at(vertex).begin();
+      }
+      std::unordered_set<T>::const_iterator end() const {
+        return graph.adjacency.at(vertex).end();
+      }
+    };
 }
