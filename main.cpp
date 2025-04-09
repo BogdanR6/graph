@@ -1,10 +1,13 @@
 #include <iostream>
 #include <assert.h>
-// #include "interface/undirectedGraph.hpp"
+#include "interface/undirectedGraph.hpp"
 #include "interface/directedGraph.hpp"
 #include <queue>
+#include <stack>
+#include <fstream>
+#include <ranges>
 
-int lowest_length_fbfs(graph::DirectedGraph<int>& g, int start, int end) {
+int lowestLengthFBfs(graph::DirectedGraph<int>& g, int start, int end) {
   std::unordered_map<int, bool> visited;
   std::unordered_map<int, int> distance;  // Stores the shortest distance from start to each node
   std::queue<int> q;
@@ -32,7 +35,7 @@ int lowest_length_fbfs(graph::DirectedGraph<int>& g, int start, int end) {
   return 999; //inf
 }
 
-int lowest_length_bbfs(graph::DirectedGraph<int>& g, int start, int end) {
+int lowestLengthBBfs(graph::DirectedGraph<int>& g, int start, int end) {
   std::unordered_map<int, bool> visited;
   std::unordered_map<int, int> distance;  // Stores the shortest distance from start to each node
   std::queue<int> q;
@@ -60,28 +63,69 @@ int lowest_length_bbfs(graph::DirectedGraph<int>& g, int start, int end) {
   return 999; // inf
 }
 
+// 3. Write a program that finds the connected components of an undirected graph 
+// using a depth-first traversal of the graph. 
+std::vector<std::unordered_set<int>> getConnectedComponentsDFS(graph::UndirectedGraph<int> g) {
+  std::vector<std::unordered_set<int>> components;
+  int component_index = 0;
+  std::unordered_map<int, bool> visited;
+  for (const auto& v : g) {
+    if (visited[v])
+      continue;
+    std::stack<int> stk;
+    stk.push(v);
+    visited[v] = true;
+    components.push_back(std::unordered_set<int>());
+    components[component_index].insert(v);
+    while (!stk.empty()) {
+      int top = stk.top();
+      stk.pop();
+      for (const auto& adj : g.getAdjacentVertices(top)) {
+        if (!visited[adj]) {
+          stk.push(adj);
+          visited[adj] = true;
+          components[component_index].insert(adj);
+        }
+      }
+    }
+    ++component_index;
+  }
+  return components; 
+}
+
+void getGraphFromFile(std::string path, graph::UndirectedGraph<int>& g) {
+  std::ifstream fin (path); 
+  int nrOfVertices, nrOfEdges;
+  fin >> nrOfVertices >> nrOfEdges;
+  for (int v : std::views::iota(0, nrOfVertices)) {
+    g.addVertex(v);
+  }
+  for (const auto& _ : std::views::iota(0, nrOfEdges)) {
+    int from, to, c;
+    fin >> from >> to >> c;
+    try {
+      g.addEdge(from, to);
+    } catch (std::runtime_error& _) {
+      continue;
+    }
+  }
+}
+
 int main() {
-	graph::DirectedGraph<int> g;
-	g.addVertex(1);
-	g.addVertex(2);
-	g.addVertex(3);
-	g.addVertex(4);
-	g.addVertex(5);
-	g.addVertex(6);
-	g.addVertex(7);
+  graph::UndirectedGraph<int> g;
+  getGraphFromFile("../input/graph1k.txt", g);
 
-	g.addEdge(3, 2);
-	g.addEdge(1, 4);
-	g.addEdge(5, 3);
-	g.addEdge(6, 2);
-	g.addEdge(4, 5);
-
-	for (const auto& v : g) {
-	  std::cout << v << ' ';
-	}
-
+  int index = 0;
+  for (const auto& component : getConnectedComponentsDFS(g)) {
+    std::cout << "Component " << index++ << '\n';
+    int i2 = 1;
+    for (const auto& v : component) {
+      std::cout << v << " ";
+      if (i2++ % 40 == 0) {
 	std::cout << '\n';
-	std::cout << lowest_length_fbfs(g, 1, 2) << '\n';
-	std::cout << lowest_length_bbfs(g, 1, 2) << '\n';
+      }
+    }
+    std::cout << '\n';
+  }
 	return 0;
 }

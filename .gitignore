@@ -1,1 +1,11 @@
-build/
+*
+
+!*.cpp
+!*.hpp
+!*/
+!README.md
+!CMakeLists.txt
+!input/
+
+
+/build
