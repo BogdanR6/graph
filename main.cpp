@@ -73,10 +73,9 @@ int lowestLengthBBfs(graph::DirectedGraph<int>& g, int start, int end) {
 
 // 3. Write a program that finds the connected components of an undirected graph 
 // using a depth-first traversal of the graph. 
-std::vector<graph::UndirectedGraph<int>> getConnectedComponentsDFS(graph::UndirectedGraph<int> g) {
+std::vector<graph::UndirectedGraph<int>> getConnectedComponentsDFS(const graph::UndirectedGraph<int>& g) {
   std::vector<graph::UndirectedGraph<int>> components;
 
-  int component_index = 0;
   std::unordered_map<int, bool> visited;
 
   for (const auto& v : g) {
@@ -86,23 +85,21 @@ std::vector<graph::UndirectedGraph<int>> getConnectedComponentsDFS(graph::Undire
     std::stack<int> stk;
     stk.push(v);
     components.push_back(graph::UndirectedGraph<int>());
-    components[component_index].addVertex(v);
+    components.back().addVertex(v);
+    visited[v] = true;
     while (!stk.empty()) {
       int top = stk.top();
       stk.pop();
-      if (visited[top])
-	continue;
-      visited[top] = true;
       for (const auto& adj : g.getAdjacentVertices(top)) {
         if (!visited[adj]) {
           stk.push(adj);
-	  if (!components[component_index].isVertex(adj))
-	    components[component_index].addVertex(adj);
-	  components[component_index].addEdge(top, adj);
+	  visited[adj] = true;
+	  if (!components.back().isVertex(adj))
+	    components.back().addVertex(adj);
+	  components.back().addEdge(top, adj);
         }
       }
     }
-    ++component_index;
   }
   return components; 
 }
