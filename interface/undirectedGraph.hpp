@@ -21,9 +21,24 @@ namespace graph {
       void removeEdge(const T& from, const T& to) override;
       std::unordered_set<T>::const_iterator begin() const override;
       std::unordered_set<T>::const_iterator end() const override;
-
+      void clear() {
+        adjacency.clear();
+        vertices.clear();
+      }
       UndirectedGraph() {}
-      AdjacentVerticesIterator<T> getAdjacentVertices(const T& v);
+      UndirectedGraph(const UndirectedGraph<T>& other) {
+          this->adjacency = other.adjacency;
+          this->vertices = other.vertices;
+      }
+      AdjacentVerticesIterator<T> getAdjacentVertices(const T& v) const;
+
+      UndirectedGraph<T>& operator=(const UndirectedGraph<T>& other) {
+        if (this != &other) {
+          this->adjacency = other.adjacency;
+          this->vertices = other.vertices;
+        }
+        return *this;
+      }
     };
 
 
@@ -103,7 +118,7 @@ namespace graph {
     }
 
     template <typename T>
-    AdjacentVerticesIterator<T> UndirectedGraph<T>::getAdjacentVertices(const T& v) {
+    AdjacentVerticesIterator<T> UndirectedGraph<T>::getAdjacentVertices(const T& v) const {
       return AdjacentVerticesIterator<T>(*this, v); 
     }
 
