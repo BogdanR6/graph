@@ -1,5 +1,7 @@
 #pragma once
 #include "graph.hpp"
+#include <stdexcept>
+#include <unordered_map>
 
 namespace graph {
 

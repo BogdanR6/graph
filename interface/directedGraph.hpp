@@ -1,5 +1,6 @@
 #pragma once
 #include "graph.hpp"
+#include <unordered_map>
 #include <stdexcept>
 
 namespace std { // for the map with the map of keys

@@ -1,7 +1,5 @@
 #pragma once
-#include <unordered_map>
 #include <unordered_set>
-#include <stdexcept>
 
 namespace graph {
 
@@ -13,8 +11,8 @@ namespace graph {
 
     virtual void addVertex(const T& v) = 0;
     virtual void addEdge(const T& from, const T& to) = 0;
-		virtual void removeVertex(const T& v) = 0;
-		virtual void removeEdge(const T& from, const T& to) = 0;
+    virtual void removeVertex(const T& v) = 0;
+    virtual void removeEdge(const T& from, const T& to) = 0;
     virtual bool isVertex(const T& v) const = 0;
     virtual bool isEdge(const T& from, const T& to) const = 0;
     
