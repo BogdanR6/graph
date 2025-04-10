@@ -1,23 +1,24 @@
-#include <iostream>
-#include <assert.h>
-#include "interface/undirectedGraph.hpp"
 #include "interface/directedGraph.hpp"
-#include <queue>
-#include <stack>
+#include "interface/undirectedGraph.hpp"
+#include <assert.h>
 #include <fstream>
+#include <iostream>
+#include <queue>
 #include <ranges>
+#include <stack>
 
 #if defined(__linux__) // Or #if __linux__
-  #define CLEAR_SCREEN system("clear");
+#define CLEAR_SCREEN system("clear");
 #elif _WIN32
-  #define CLEAR_SCREEN system("cls");
+#define CLEAR_SCREEN system("cls");
 #else
-  #define CLEAR_SCREEN system("clear");
+#define CLEAR_SCREEN system("clear");
 #endif
 
-int lowestLengthFBfs(graph::DirectedGraph<int>& g, int start, int end) {
+int lowestLengthFBfs(graph::DirectedGraph<int> &g, int start, int end) {
   std::unordered_map<int, bool> visited;
-  std::unordered_map<int, int> distance;  // Stores the shortest distance from start to each node
+  std::unordered_map<int, int>
+  distance; // Stores the shortest distance from start to each node
   std::queue<int> q;
 
   distance[start] = 0;
@@ -27,7 +28,7 @@ int lowestLengthFBfs(graph::DirectedGraph<int>& g, int start, int end) {
     int t = q.front();
     q.pop();
 
-    for (const auto& v : g.getOutboundEdges(t)) {
+    for (const auto &v : g.getOutboundEdges(t)) {
       // If we have reached the end node, return the distance
       if (v == end)
         return distance[t] + 1;
@@ -40,12 +41,13 @@ int lowestLengthFBfs(graph::DirectedGraph<int>& g, int start, int end) {
     }
   }
 
-  return 999; //inf
+  return 999; // inf
 }
 
-int lowestLengthBBfs(graph::DirectedGraph<int>& g, int start, int end) {
+int lowestLengthBBfs(graph::DirectedGraph<int> &g, int start, int end) {
   std::unordered_map<int, bool> visited;
-  std::unordered_map<int, int> distance;  // Stores the shortest distance from start to each node
+  std::unordered_map<int, int>
+      distance; // Stores the shortest distance from start to each node
   std::queue<int> q;
 
   distance[end] = 0;
@@ -55,7 +57,7 @@ int lowestLengthBBfs(graph::DirectedGraph<int>& g, int start, int end) {
     int t = q.front();
     q.pop();
 
-    for (const auto& v : g.getInboundEdges(t)) {
+    for (const auto &v : g.getInboundEdges(t)) {
       // If we have reached the end node, return the distance
       if (v == start)
         return distance[t] + 1;
@@ -71,14 +73,15 @@ int lowestLengthBBfs(graph::DirectedGraph<int>& g, int start, int end) {
   return 999; // inf
 }
 
-// 3. Write a program that finds the connected components of an undirected graph 
-// using a depth-first traversal of the graph. 
-std::vector<graph::UndirectedGraph<int>> getConnectedComponentsDFS(const graph::UndirectedGraph<int>& g) {
+// 3. Write a program that finds the connected components of an undirected graph
+// using a depth-first traversal of the graph.
+std::vector<graph::UndirectedGraph<int>>
+getConnectedComponentsDFS(const graph::UndirectedGraph<int> &g) {
   std::vector<graph::UndirectedGraph<int>> components;
 
   std::unordered_map<int, bool> visited;
 
-  for (const auto& v : g) {
+  for (const auto &v : g) {
     if (visited[v])
       continue;
 
@@ -90,34 +93,34 @@ std::vector<graph::UndirectedGraph<int>> getConnectedComponentsDFS(const graph::
     while (!stk.empty()) {
       int top = stk.top();
       stk.pop();
-      for (const auto& adj : g.getAdjacentVertices(top)) {
+      for (const auto &adj : g.getAdjacentVertices(top)) {
         if (!visited[adj]) {
           stk.push(adj);
-	  visited[adj] = true;
-	  if (!components.back().isVertex(adj))
-	    components.back().addVertex(adj);
-	  components.back().addEdge(top, adj);
+          visited[adj] = true;
+          if (!components.back().isVertex(adj))
+            components.back().addVertex(adj);
+          components.back().addEdge(top, adj);
         }
       }
     }
   }
-  return components; 
+  return components;
 }
 
 graph::UndirectedGraph<int> getGraphFromFile(std::string path) {
   graph::UndirectedGraph<int> g;
-  std::ifstream fin (path); 
+  std::ifstream fin(path);
   int nrOfVertices, nrOfEdges;
   fin >> nrOfVertices >> nrOfEdges;
   for (int v : std::views::iota(0, nrOfVertices)) {
     g.addVertex(v);
   }
-  for (const auto& _ : std::views::iota(0, nrOfEdges)) {
+  for (const auto &_ : std::views::iota(0, nrOfEdges)) {
     int from, to, c;
     fin >> from >> to >> c;
     try {
       g.addEdge(from, to);
-    } catch (std::runtime_error& _) {
+    } catch (std::runtime_error &_) {
       continue;
     }
   }
@@ -125,7 +128,7 @@ graph::UndirectedGraph<int> getGraphFromFile(std::string path) {
 }
 
 void printMenu() {
-  //CLEAR_SCREEN 
+  // CLEAR_SCREEN
   std::cout << "\n--- Graph Menu ---\n";
   std::cout << "1. Add vertex\n";
   std::cout << "2. Remove vertex\n";
@@ -137,8 +140,8 @@ void printMenu() {
   std::cout << "8. Show adjacent vertices\n";
   std::cout << "9. Load Graph from file\n";
   std::cout << "10. Get connected components\n";
-  //std::cout << "11. Show adjacent vertices\n";
-  //std::cout << "12. Show adjacent vertices\n";
+  // std::cout << "11. Show adjacent vertices\n";
+  // std::cout << "12. Show adjacent vertices\n";
   std::cout << "0. Exit\n";
   std::cout << "Enter your choice: ";
 }
@@ -181,20 +184,22 @@ int main() {
     case 5:
       std::cout << "Enter vertex to check: ";
       std::cin >> v1;
-      std::cout << (g.isVertex(v1) ? "Vertex exists.\n" : "Vertex does not exist.\n");
+      std::cout << (g.isVertex(v1) ? "Vertex exists.\n"
+                                   : "Vertex does not exist.\n");
       break;
     case 6:
       std::cout << "Enter two vertices to check for edge: ";
       std::cin >> v1 >> v2;
-      std::cout << (g.isEdge(v1, v2) ? "Edge exists.\n" : "Edge does not exist.\n");
+      std::cout << (g.isEdge(v1, v2) ? "Edge exists.\n"
+                                     : "Edge does not exist.\n");
       break;
     case 7: {
       std::cout << "Vertices in the graph:\n";
       int i = 1;
       for (auto it = g.begin(); it != g.end(); ++it) {
-	  std::cout << *it << " ";
-	  if (i++ % 30 == 0)
-	    std::cout << '\n';
+        std::cout << *it << " ";
+        if (i++ % 30 == 0)
+          std::cout << '\n';
       }
       std::cout << '\n';
       std::cout << "Nr of vertices: " << g.getNrOfVertices() << '\n';
@@ -205,12 +210,12 @@ int main() {
       std::cout << "Enter vertex: ";
       std::cin >> v1;
       if (!g.isVertex(v1)) {
-	  std::cout << "Vertex does not exist.\n";
-	  break;
+        std::cout << "Vertex does not exist.\n";
+        break;
       }
       std::cout << "Adjacent vertices to " << v1 << ":\n";
-      for (const auto& v : g.getAdjacentVertices(v1)) {
-	  std::cout << v << "\n";
+      for (const auto &v : g.getAdjacentVertices(v1)) {
+        std::cout << v << "\n";
       }
       break;
     case 9: {
@@ -223,15 +228,15 @@ int main() {
     }
     case 10: {
       int i = 1;
-      for (const auto& grph : getConnectedComponentsDFS(g)) {
-	std::cout << "Component " << i++ << '\n';
-	int i2 = 1;
-	for (const auto& v : grph) {
-	    std::cout << v << ' ';
-	    if (i2++ % 30 == 0)
-	      std::cout << '\n';
-	}
-	std::cout << '\n';
+      for (const auto &grph : getConnectedComponentsDFS(g)) {
+        std::cout << "Component " << i++ << '\n';
+        int i2 = 1;
+        for (const auto &v : grph) {
+          std::cout << v << ' ';
+          if (i2++ % 30 == 0)
+            std::cout << '\n';
+        }
+        std::cout << '\n';
       }
       break;
     }
