@@ -3,17 +3,6 @@
 #include <stdexcept>
 #include <unordered_map>
 
-namespace std { // for the map with the map of keys
-template <typename T> struct hash<std::pair<T, T>> {
-  size_t operator()(const std::pair<T, T> &p) const {
-    // Combine the hashes of the two elements in the pair
-    size_t h1 = hash<T>{}(p.first);
-    size_t h2 = hash<T>{}(p.second);
-    return h1 ^ (h2 << 1); // Combine the two hashes
-  }
-};
-} // namespace std
-
 namespace graph {
 
 template <typename T> class InboundEdgesIterator;
@@ -22,39 +11,64 @@ template <typename T> class OutboundEdgesIterator;
 
 template <typename T> class DirectedGraph : public Graph<T> {
 private:
-  bool weighted = false;
-  bool determined_weighted = false;
   std::unordered_map<T, std::unordered_set<T>> inAdjacency;
   std::unordered_map<T, std::unordered_set<T>> outAdjacency;
-  std::unordered_map<std::pair<T, T>, int> weights;
+  std::unordered_map<Edge<T>, int, EdgeHash<T>> weights;
   std::unordered_set<T> vertices;
   friend class InboundEdgesIterator<T>;
   friend class OutboundEdgesIterator<T>;
 
 public:
+  GraphType getGraphType() const override;
   bool isVertex(const T &v) const override;
   bool isEdge(const T &from, const T &to) const override;
   void addVertex(const T &v) override;
   void removeVertex(const T &v) override;
-  void addEdge(const T &from, const T &to) override;
+  void addEdge(const T &from, const T &to, const int &weight = 1) override;
   void removeEdge(const T &from, const T &to) override;
+  int getNrOfVertices() const override;
+  int getNrOfEdges() const override;
+  int getEdgeWeight(const T &from, const T &to) const override;
+  void clear() override;
   std::unordered_set<T>::const_iterator begin() const override;
   std::unordered_set<T>::const_iterator end() const override;
 
   DirectedGraph() : inAdjacency(), outAdjacency(), weights(), vertices() {}
-  void addWEdge(const T &from, const T &to, const int &weight);
   int getInDegree(const T &v) const;
   int getOutDegree(const T &v) const;
-  int getEdgeCost(const T &from, const T &to) const;
 
   OutboundEdgesIterator<T> getOutboundEdges(const T &v) const;
   InboundEdgesIterator<T> getInboundEdges(const T &v) const;
 };
 
+template <typename T>
+GraphType DirectedGraph<T>::getGraphType() const {
+  return GraphType::Directed;
+}
+
+template <typename T>
+int DirectedGraph<T>::getNrOfVertices() const {
+  return vertices.size();
+}
+
+
+template <typename T>
+int DirectedGraph<T>::getNrOfEdges() const {
+  return weights.size();
+}
+
+
+template <typename T>
+void DirectedGraph<T>::clear() {
+  inAdjacency.clear();
+  outAdjacency.clear();
+  vertices.clear();
+  weights.clear();
+}
+
+
 template <typename T> 
-int DirectedGraph<T>::getEdgeCost(const T &from, const T &to) const {
-  if (determined_weighted && !weighted)
-    throw std::runtime_error("graph is not weighted");
+int DirectedGraph<T>::getEdgeWeight(const T &from, const T &to) const {
   if (!isVertex(from))
     throw std::runtime_error("from is not in the graph");
   if (!isVertex(to))
@@ -95,21 +109,17 @@ template <typename T> void DirectedGraph<T>::removeVertex(const T &v) {
 }
 
 template <typename T>
-void DirectedGraph<T>::addEdge(const T &from, const T &to) {
+void DirectedGraph<T>::addEdge(const T &from, const T &to, const int &weight) {
   if (!isVertex(from))
     throw std::runtime_error("from is not in the graph");
   if (!isVertex(to))
     throw std::runtime_error("to is not in the graph");
-  if (determined_weighted && weighted)
-    throw std::runtime_error(
-        "The graph is weighted. Can't add unweighted edges to it");
   if (isEdge(from, to))
     throw std::runtime_error("The edge already exists");
 
   outAdjacency[from].insert(to);
   inAdjacency[to].insert(from);
-  determined_weighted = true;
-  weighted = false;
+  weights[std::make_pair(from, to)] = weight;
 }
 
 template <typename T>
@@ -123,28 +133,9 @@ void DirectedGraph<T>::removeEdge(const T &from, const T &to) {
 
   outAdjacency[from].erase(to);
   inAdjacency[to].erase(from);
-  if (weighted)
-    weights.erase(std::make_pair(from, to));
+  weights.erase(std::make_pair(from, to));
 }
 
-template <typename T>
-void DirectedGraph<T>::addWEdge(const T &from, const T &to, const int &weight) {
-  if (!isVertex(from))
-    throw std::runtime_error("from is not in the graph");
-  if (!isVertex(to))
-    throw std::runtime_error("to is not in the graph");
-  if (determined_weighted && !weighted)
-    throw std::runtime_error(
-        "The graph is unweighted. Can't add weighted edges to it");
-  if (isEdge(from, to))
-    throw std::runtime_error("The edge already exists");
-
-  outAdjacency[from].insert(to);
-  inAdjacency[to].insert(from);
-  weights[std::make_pair(from, to)] = weight;
-  determined_weighted = true;
-  weighted = true;
-}
 
 template <typename T>
 std::unordered_set<T>::const_iterator DirectedGraph<T>::begin() const {

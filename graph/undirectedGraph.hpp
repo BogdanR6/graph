@@ -11,17 +11,20 @@ template <typename T> class UndirectedGraph : public Graph<T> {
 private:
   std::unordered_map<T, std::unordered_set<T>> adjacency;
   std::unordered_set<T> vertices;
+  std::unordered_map<Edge<T>, int, EdgeHash<T>> weights;
   friend class AdjacentVerticesIterator<T>;
 
 public:
+  GraphType getGraphType() const override;
   bool isVertex(const T &v) const override;
   bool isEdge(const T &from, const T &to) const override;
   void addVertex(const T &v) override;
   void removeVertex(const T &v) override;
-  void addEdge(const T &from, const T &to) override;
+  void addEdge(const T &from, const T &to, const int &weight = 1) override;
   void removeEdge(const T &from, const T &to) override;
   int getNrOfVertices() const override;
   int getNrOfEdges() const override;
+  int getEdgeWeight(const T &from, const T &to) const override;
   void clear() override;
   std::unordered_set<T>::const_iterator begin() const override;
   std::unordered_set<T>::const_iterator end() const override;
@@ -42,6 +45,16 @@ public:
     return *this;
   }
 };
+
+template <typename T>
+int UndirectedGraph<T>::getEdgeWeight(const T &from, const T &to) const {
+  return weights[{from, to}];
+}
+
+template <typename T>
+GraphType UndirectedGraph<T>::getGraphType() const {
+  return GraphType::Undirected;
+}
 
 template <typename T> bool UndirectedGraph<T>::isVertex(const T &v) const {
   return adjacency.find(v) != adjacency.end();
@@ -73,7 +86,7 @@ template <typename T> void UndirectedGraph<T>::removeVertex(const T &v) {
 }
 
 template <typename T>
-void UndirectedGraph<T>::addEdge(const T &from, const T &to) {
+void UndirectedGraph<T>::addEdge(const T &from, const T &to, const int &weight) {
   if (!isVertex(from))
     throw std::runtime_error("from is not in the graph");
   if (!isVertex(to))
@@ -83,6 +96,7 @@ void UndirectedGraph<T>::addEdge(const T &from, const T &to) {
 
   adjacency[from].insert(to);
   adjacency[to].insert(from);
+  weights[{from, to}] = weight;
 }
 
 template <typename T>
