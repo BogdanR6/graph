@@ -43,12 +43,26 @@ public:
 
   DirectedGraph() : inAdjacency(), outAdjacency(), weights(), vertices() {}
   void addWEdge(const T &from, const T &to, const int &weight);
-  int getInDegree(const T &v);
-  int getOutDegree(const T &v);
+  int getInDegree(const T &v) const;
+  int getOutDegree(const T &v) const;
+  int getEdgeCost(const T &from, const T &to) const;
 
-  OutboundEdgesIterator<T> getOutboundEdges(const T &v);
-  InboundEdgesIterator<T> getInboundEdges(const T &v);
+  OutboundEdgesIterator<T> getOutboundEdges(const T &v) const;
+  InboundEdgesIterator<T> getInboundEdges(const T &v) const;
 };
+
+template <typename T> 
+int DirectedGraph<T>::getEdgeCost(const T &from, const T &to) const {
+  if (determined_weighted && !weighted)
+    throw std::runtime_error("graph is not weighted");
+  if (!isVertex(from))
+    throw std::runtime_error("from is not in the graph");
+  if (!isVertex(to))
+    throw std::runtime_error("to is not in the graph");
+  if (!isEdge(from, to))
+    throw std::runtime_error("The edge already exists");
+  return weights.at(std::make_pair(from, to));
+}
 
 template <typename T> bool DirectedGraph<T>::isVertex(const T &v) const {
   return vertices.find(v) != vertices.end();
@@ -142,27 +156,27 @@ std::unordered_set<T>::const_iterator DirectedGraph<T>::end() const {
   return vertices.end();
 }
 
-template <typename T> int DirectedGraph<T>::getInDegree(const T &v) {
+template <typename T> int DirectedGraph<T>::getInDegree(const T &v) const {
   if (!isVertex(v))
     throw std::runtime_error("Vertex is not in the graph");
   return inAdjacency.at(v).size();
 }
 
-template <typename T> int DirectedGraph<T>::getOutDegree(const T &v) {
+template <typename T> int DirectedGraph<T>::getOutDegree(const T &v) const {
   if (!isVertex(v))
     throw std::runtime_error("Vertex is not in the graph");
   return outAdjacency.at(v).size();
 }
 
 template <typename T>
-OutboundEdgesIterator<T> DirectedGraph<T>::getOutboundEdges(const T &v) {
+OutboundEdgesIterator<T> DirectedGraph<T>::getOutboundEdges(const T &v) const {
   if (!isVertex(v))
     throw std::runtime_error("Vertex not in the graph");
   return OutboundEdgesIterator<T>(*this, v);
 }
 
 template <typename T>
-InboundEdgesIterator<T> DirectedGraph<T>::getInboundEdges(const T &v) {
+InboundEdgesIterator<T> DirectedGraph<T>::getInboundEdges(const T &v) const {
   if (!isVertex(v))
     throw std::runtime_error("Vertex not in the graph");
   return InboundEdgesIterator<T>(*this, v);
