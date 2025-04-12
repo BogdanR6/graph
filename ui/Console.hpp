@@ -12,9 +12,14 @@
 #define CLEAR_SCREEN system("clear");
 #endif
 
+struct CommandResult {
+  std::string output;
+  bool shouldExit = false;
+};
+
 class Console {
 public:
-  using CommandHandler = std::function<void(const std::vector<std::string>&)>;
+  using CommandHandler = std::function<CommandResult(const std::vector<std::string>&)>;
   void startConsoleLoop();
   void registerCommand(const std::string& name, CommandHandler handler);
   std::vector<std::string> parseLine(std::string line) const;

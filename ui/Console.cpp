@@ -1,4 +1,5 @@
 #include "Console.hpp"
+#include "../errors/InvalidInputError.cpp"
 #include <iostream>
 #include <vector>
 
@@ -8,11 +9,29 @@ void Console::registerCommand(const std::string& name, CommandHandler handler) {
 
 void Console::startConsoleLoop() {
   while (true) {
-    std::vector<std::string> line = parseLine(getInput());
-    for (const auto& arg : line) {
-      std::cout << arg << '\n'; 
+    std::vector<std::string> args = parseLine(getInput());
+    if (args.empty())
+      continue;
+
+    auto commandMapIt = commands.find(args[0]);
+    if (commandMapIt == commands.end()) {
+      std::cout << "Unknown command: " << args[0] << "\n";
+      continue;
     }
-    std::cout << '\n';
+
+    CommandResult result;
+    try {
+      result = commandMapIt->second(args);
+    } catch (InvalidUsageError& e) {
+      std::cout << e.what() << '\n';
+      continue;
+    }
+    
+    if (!result.output.empty()) {
+      std::cout << result.output << '\n';
+    }
+    if (result.shouldExit)
+      return;
   }
 }
 

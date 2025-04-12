@@ -148,6 +148,8 @@ std::unordered_set<T>::const_iterator UndirectedGraph<T>::end() const {
 template <typename T>
 AdjacentVerticesIterator<T>
 UndirectedGraph<T>::getAdjacentVertices(const T &v) const {
+  if (!isVertex(v))
+    throw std::runtime_error("vertex is not in the graph");
   return AdjacentVerticesIterator<T>(*this, v);
 }
 
