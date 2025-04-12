@@ -1,5 +1,5 @@
 #pragma once
-#include "graph.hpp"
+#include "Graph.hpp"
 #include <stdexcept>
 #include <unordered_map>
 
@@ -74,8 +74,8 @@ int DirectedGraph<T>::getEdgeWeight(const T &from, const T &to) const {
   if (!isVertex(to))
     throw std::runtime_error("to is not in the graph");
   if (!isEdge(from, to))
-    throw std::runtime_error("The edge already exists");
-  return weights.at(std::make_pair(from, to));
+    throw std::runtime_error("The edge does not exit exists");
+  return weights.at({from, to});
 }
 
 template <typename T> bool DirectedGraph<T>::isVertex(const T &v) const {
@@ -119,7 +119,7 @@ void DirectedGraph<T>::addEdge(const T &from, const T &to, const int &weight) {
 
   outAdjacency[from].insert(to);
   inAdjacency[to].insert(from);
-  weights[std::make_pair(from, to)] = weight;
+  weights[{from, to}] = weight;
 }
 
 template <typename T>
@@ -133,7 +133,7 @@ void DirectedGraph<T>::removeEdge(const T &from, const T &to) {
 
   outAdjacency[from].erase(to);
   inAdjacency[to].erase(from);
-  weights.erase(std::make_pair(from, to));
+  weights.erase({from, to});
 }
 
 

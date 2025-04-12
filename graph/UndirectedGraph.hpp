@@ -1,5 +1,5 @@
 #pragma once
-#include "graph.hpp"
+#include "Graph.hpp"
 #include <stdexcept>
 #include <unordered_map>
 
@@ -48,7 +48,13 @@ public:
 
 template <typename T>
 int UndirectedGraph<T>::getEdgeWeight(const T &from, const T &to) const {
-  return weights[{from, to}];
+  if (!isVertex(from))
+    throw std::runtime_error("from is not in the graph");
+  if (!isVertex(to))
+    throw std::runtime_error("to is not in the graph");
+  if (!isEdge(from, to))
+    throw std::runtime_error("The edge does not exists");
+  return weights.at({from, to});
 }
 
 template <typename T>

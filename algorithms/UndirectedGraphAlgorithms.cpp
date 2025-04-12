@@ -1,4 +1,4 @@
-#include "../graph/undirectedGraph.hpp"
+#include "../graph/UndirectedGraph.hpp"
 #include <vector>
 #include <stack>
 

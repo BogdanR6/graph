@@ -1,4 +1,4 @@
-#include "../graph/directedGraph.hpp"
+#include "../graph/DirectedGraph.hpp"
 #include <queue>
 #include <limits>
 
@@ -78,7 +78,7 @@ void findLowestCostWalk(const graph::DirectedGraph<int>& g, int start, int end) 
   // Initialize cost matrix
   for (const auto& from : g) {
     for (const auto& to : g.getOutboundEdges(from)) {
-      cost[index[from]][index[to]] = g.getEdgeCost(from, to);  
+      cost[index[from]][index[to]] = g.getEdgeWeight(from, to);  
     }
   }
 
@@ -100,7 +100,7 @@ void findLowestCostWalk(const graph::DirectedGraph<int>& g, int start, int end) 
   // Detect negative cost cycles
   for (int i = 0; i < n; ++i) {
     if (dist[i][i] < 0) {
-      std::cout << "Negative cost cycle detected in the graph.\n";
+      // std::cout << "Negative cost cycle detected in the graph.\n";
       return;
     }
   }
@@ -109,9 +109,9 @@ void findLowestCostWalk(const graph::DirectedGraph<int>& g, int start, int end) 
   int t = index[end];
 
   if (dist[s][t] == INF) {
-      std::cout << "No walk exists from vertex " << start << " to vertex " << end << ".\n";
+      // std::cout << "No walk exists from vertex " << start << " to vertex " << end << ".\n";
   } else {
-      std::cout << "Lowest cost walk from vertex " << start << " to vertex " << end
-                << " is " << dist[s][t] << ".\n";
+      // std::cout << "Lowest cost walk from vertex " << start << " to vertex " << end
+                // << " is " << dist[s][t] << ".\n";
   }
 }
