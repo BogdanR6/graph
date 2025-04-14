@@ -20,7 +20,7 @@ struct Edge {
 template <typename T>
 struct EdgeHash {
   std::size_t operator()(const Edge<T>& e) const {
-    return std::hash<int>()(e.from) ^ (std::hash<int>()(e.to) << 1);
+    return std::hash<T>()(e.from) ^ (std::hash<T>()(e.to) << 1);
   }
 };
 

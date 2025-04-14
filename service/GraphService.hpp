@@ -1,30 +1,31 @@
 #pragma once
 #include "../graph/Graph.hpp"
 #include "../graph/UndirectedGraph.hpp"
-#include "../graph/DirectedGraph.hpp"
 #include <memory>
 #include <string>
 
+using TElem = std::string;
+
 class GraphService {
 public:
-  GraphService(std::unique_ptr<graph::Graph<int>> graph) : graph(std::move(graph)) {}
-  GraphService() : GraphService(std::make_unique<graph::UndirectedGraph<int>>()) {}
+  GraphService(std::unique_ptr<graph::Graph<TElem>> graph) : graph(std::move(graph)) {}
+  GraphService() : GraphService(std::make_unique<graph::UndirectedGraph<TElem>>()) {}
 
-  void addVertex(const int &vertexId);
-  void removeVertex(const int &vertexId);
-  bool isVertex(const int &vertexId);
+  void addVertex(const TElem &vertexId);
+  void removeVertex(const TElem &vertexId);
+  bool isVertex(const TElem &vertexId);
     
-  void addEdge(const int &fromVertexId, const int &toVertexId, const int &weight);
-  void removeEdge(const int &fromVertexId, const int &toVertexId);
-  bool isEdge(const int &fromVertexId, const int &toVertexId);
+  void addEdge(const TElem &fromVertexId, const TElem &toVertexId, const int &weight);
+  void removeEdge(const TElem &fromVertexId, const TElem &toVertexId);
+  bool isEdge(const TElem &fromVertexId, const TElem &toVertexId);
 
-  std::string getAdjacentVertices(const int &vertexId);
-  std::string getOutboundVertices(const int &vertexId);
+  std::string getAdjacentVertices(const TElem &vertexId);
+  std::string getOutboundVertices(const TElem &vertexId);
 
   std::string getVertices();
 
   std::string getEdges();
 
 private:
-  std::unique_ptr<graph::Graph<int>> graph;
+  std::unique_ptr<graph::Graph<TElem>> graph;
 };
