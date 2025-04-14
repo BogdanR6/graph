@@ -11,7 +11,7 @@ CommandController::CommandController(Console& console, GraphService& graphServic
 
   console.registerCommand("add_vertex", [&](const auto& args) -> CommandResult {
     if (args.size() != 2)
-      throw InvalidUsageError("Usage: add_vertex <node_id>");
+      throw InvalidUsageError("Usage: add_vertex <vertex_id>");
 
     TElem vertexId = args[1];
     graphService.addVertex(vertexId);
@@ -20,11 +20,19 @@ CommandController::CommandController(Console& console, GraphService& graphServic
 
   console.registerCommand("remove_vertex", [&](const auto& args) -> CommandResult {
     if (args.size() != 2)
-      throw InvalidUsageError("Usage: remove_vertex <node_id>");
+      throw InvalidUsageError("Usage: remove_vertex <vertex_id>");
 
     TElem vertexId = args[1];
     graphService.removeVertex(vertexId);
     return {"Vertex removed."};
+  });
+
+  console.registerCommand("is_vertex", [&](const auto& args) -> CommandResult {
+    if (args.size() != 2)
+      throw InvalidUsageError("Usage: is_vertex <vertex_id>");
+
+    TElem vertexId = args[1];
+    return {"Vertex " + vertexId + (graphService.isVertex(vertexId) ? " is " : " is NOT ") + "in the graph"};
   });
 
   console.registerCommand("add_edge", [&](const auto& args) -> CommandResult {
@@ -51,6 +59,20 @@ CommandController::CommandController(Console& console, GraphService& graphServic
     graphService.removeEdge(fromVertexId, toVertexId);
     return {"Edge removed."};
   });
+
+
+  console.registerCommand("is_edge", [&](const auto& args) -> CommandResult {
+    if (args.size() != 3)
+      throw InvalidUsageError("Usage: is_edge <from_vertex_id> <to_vertex_id>");
+
+    TElem fromVertexId = args[1];
+    TElem toVertexId = args[2];
+
+    
+    return {"Edge " + fromVertexId + "->" + toVertexId + 
+            (graphService.isEdge(fromVertexId, toVertexId) ? " is " : " is NOT ") + "in the graph"};
+  });
+
 
   console.registerCommand("list_vertices", [&](const auto& args) -> CommandResult {
     if (args.size() != 1)
