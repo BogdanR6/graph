@@ -5,9 +5,9 @@
 
 namespace graph {
 
-template <typename T> class InboundEdgesIterator;
+template <typename T> class InboundVerticesIterator;
 
-template <typename T> class OutboundEdgesIterator;
+template <typename T> class OutboundVerticesIterator;
 
 template <typename T> class DirectedGraph : public Graph<T> {
 private:
@@ -15,8 +15,8 @@ private:
   std::unordered_map<T, std::unordered_set<T>> outAdjacency;
   std::unordered_map<Edge<T>, int, EdgeHash<T>> weights;
   std::unordered_set<T> vertices;
-  friend class InboundEdgesIterator<T>;
-  friend class OutboundEdgesIterator<T>;
+  friend class InboundVerticesIterator<T>;
+  friend class OutboundVerticesIterator<T>;
 
 public:
   GraphType getGraphType() const override;
@@ -37,8 +37,8 @@ public:
   int getInDegree(const T &v) const;
   int getOutDegree(const T &v) const;
 
-  OutboundEdgesIterator<T> getOutboundEdges(const T &v) const;
-  InboundEdgesIterator<T> getInboundEdges(const T &v) const;
+  OutboundVerticesIterator<T> getOutboundVertices(const T &v) const;
+  InboundVerticesIterator<T> getInboundVertices(const T &v) const;
 };
 
 template <typename T>
@@ -160,26 +160,26 @@ template <typename T> int DirectedGraph<T>::getOutDegree(const T &v) const {
 }
 
 template <typename T>
-OutboundEdgesIterator<T> DirectedGraph<T>::getOutboundEdges(const T &v) const {
+OutboundVerticesIterator<T> DirectedGraph<T>::getOutboundVertices(const T &v) const {
   if (!isVertex(v))
     throw std::runtime_error("Vertex not in the graph");
-  return OutboundEdgesIterator<T>(*this, v);
+  return OutboundVerticesIterator<T>(*this, v);
 }
 
 template <typename T>
-InboundEdgesIterator<T> DirectedGraph<T>::getInboundEdges(const T &v) const {
+InboundVerticesIterator<T> DirectedGraph<T>::getInboundVertices(const T &v) const {
   if (!isVertex(v))
     throw std::runtime_error("Vertex not in the graph");
-  return InboundEdgesIterator<T>(*this, v);
+  return InboundVerticesIterator<T>(*this, v);
 }
 
-template <typename T> class InboundEdgesIterator {
+template <typename T> class InboundVerticesIterator {
 private:
   const DirectedGraph<T> &graph;
   const T &vertex;
 
 public:
-  InboundEdgesIterator(const DirectedGraph<T> &graph, const T &vertex)
+  InboundVerticesIterator(const DirectedGraph<T> &graph, const T &vertex)
       : graph(graph), vertex(vertex) {}
   std::unordered_set<T>::const_iterator begin() const {
     return graph.inAdjacency.at(vertex).begin();
@@ -189,13 +189,13 @@ public:
   }
 };
 
-template <typename T> class OutboundEdgesIterator {
+template <typename T> class OutboundVerticesIterator {
 private:
   const DirectedGraph<T> &graph;
   const T &vertex;
 
 public:
-  OutboundEdgesIterator(const DirectedGraph<T> &graph, const T &vertex)
+  OutboundVerticesIterator(const DirectedGraph<T> &graph, const T &vertex)
       : graph(graph), vertex(vertex) {}
 
   std::unordered_set<T>::const_iterator begin() const {

@@ -21,6 +21,7 @@ public:
 
   std::string getAdjacentVertices(const TElem &vertexId);
   std::string getOutboundVertices(const TElem &vertexId);
+  std::string getOutboundInbound(const TElem &vertexId);
 
   std::string getVertices();
 

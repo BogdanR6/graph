@@ -39,6 +39,7 @@ public:
   virtual int getNrOfEdges() const = 0;
   virtual int getEdgeWeight(const T &from, const T &to) const = 0;
   virtual void clear() = 0;
+  // include a get adjacent vertices function
 
   virtual std::unordered_set<T>::const_iterator begin() const = 0;
   virtual std::unordered_set<T>::const_iterator end() const = 0;

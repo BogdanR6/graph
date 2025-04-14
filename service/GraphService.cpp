@@ -44,6 +44,7 @@ std::string GraphService::getVertices() {
 
 
 std::string GraphService::getAdjacentVertices(const TElem &vertexId) {
+  // TODO: add support for all types of graphs 
   if (graph->getGraphType() != graph::GraphType::Undirected)
     throw InvalidOperationOnGraphType("Adjacent Vertices are available only for Undirected graphs");
   std::string vertices = "The adjacent vertices of " + vertexId + " are:\n";
@@ -62,17 +63,33 @@ std::string GraphService::getAdjacentVertices(const TElem &vertexId) {
 
 std::string GraphService::getOutboundVertices(const TElem &vertexId) {
   if (graph->getGraphType() != graph::GraphType::Directed)
-    throw InvalidOperationOnGraphType("Outbound Vertices are available only for Directed graphs");
-
+    throw InvalidOperationOnGraphType("Outbound Vertices are defined only for Directed graphs");
   std::string vertices = "The outbound vertices of " + vertexId + " are:\n";
   auto *directed = dynamic_cast<graph::DirectedGraph<TElem>*>(graph.get());
   int count = 0;
-  for (const auto& vertex : directed->getOutboundEdges(vertexId)) {
+  for (const auto& vertex : directed->getOutboundVertices(vertexId)) {
     vertices += vertex + " ";
     ++count;
   }
   if (count == 0) {
     vertices = "The vertex " + vertexId + " has no outbound vertices\n";
+  }
+  return vertices;
+}
+
+
+std::string GraphService::getOutboundInbound(const TElem &vertexId) {
+  if (graph->getGraphType() != graph::GraphType::Directed)
+    throw InvalidOperationOnGraphType("Inbound Vertices are defined only for Directed graphs");
+  std::string vertices = "The inbound vertices of " + vertexId + " are:\n";
+  auto *directed = dynamic_cast<graph::DirectedGraph<TElem>*>(graph.get());
+  int count = 0;
+  for (const auto& vertex : directed->getInboundVertices(vertexId)) {
+    vertices += vertex + " ";
+    ++count;
+  }
+  if (count == 0) {
+    vertices = "The vertex " + vertexId + " has no inbound vertices\n";
   }
   return vertices;
 }
