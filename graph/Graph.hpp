@@ -1,5 +1,6 @@
 #pragma once
 #include <unordered_set>
+#include <vector>
 
 namespace graph {
 
@@ -38,6 +39,7 @@ public:
   virtual int getNrOfVertices() const = 0;
   virtual int getNrOfEdges() const = 0;
   virtual int getEdgeWeight(const T &from, const T &to) const = 0;
+  virtual std::vector<Edge<T>> getEdges() const = 0;
   virtual void clear() = 0;
   // include a get adjacent vertices function
 

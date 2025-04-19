@@ -25,6 +25,7 @@ public:
   int getNrOfVertices() const override;
   int getNrOfEdges() const override;
   int getEdgeWeight(const T &from, const T &to) const override;
+  std::vector<Edge<T>> getEdges() const override;
   void clear() override;
   std::unordered_set<T>::const_iterator begin() const override;
   std::unordered_set<T>::const_iterator end() const override;
@@ -45,6 +46,16 @@ public:
     return *this;
   }
 };
+
+
+template <typename T>
+std::vector<Edge<T>> UndirectedGraph<T>::getEdges() const {
+  std::vector<Edge<T>> edges;
+  for (const auto &[edge, _] : weights)
+    edges.push_back(edge);
+  return edges;
+}
+
 
 template <typename T>
 int UndirectedGraph<T>::getEdgeWeight(const T &from, const T &to) const {

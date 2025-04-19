@@ -85,7 +85,7 @@ std::string GraphService::getOutboundInbound(const TElem &vertexId) {
   auto *directed = dynamic_cast<graph::DirectedGraph<TElem>*>(graph.get());
   int count = 0;
   for (const auto& vertex : directed->getInboundVertices(vertexId)) {
-    vertices += vertex + " ";
+    vertices += vertex + " "; 
     ++count;
   }
   if (count == 0) {
@@ -96,5 +96,12 @@ std::string GraphService::getOutboundInbound(const TElem &vertexId) {
 
 
 std::string GraphService::getEdges() {
-  return "Edges...";
+  std::string delimitor = "--";
+  if (graph->getGraphType() == graph::GraphType::Directed)
+    delimitor = "->";
+  std::string output = "The edges in the graph are:\n";
+  for (const auto& edge : graph->getEdges()) {
+    output += edge.from + delimitor + edge.to + "\n";
+  }
+  return output;
 }

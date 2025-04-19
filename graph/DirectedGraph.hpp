@@ -29,6 +29,7 @@ public:
   int getNrOfVertices() const override;
   int getNrOfEdges() const override;
   int getEdgeWeight(const T &from, const T &to) const override;
+  std::vector<Edge<T>> getEdges() const override;
   void clear() override;
   std::unordered_set<T>::const_iterator begin() const override;
   std::unordered_set<T>::const_iterator end() const override;
@@ -40,6 +41,14 @@ public:
   OutboundVerticesIterator<T> getOutboundVertices(const T &v) const;
   InboundVerticesIterator<T> getInboundVertices(const T &v) const;
 };
+
+template <typename T>
+std::vector<Edge<T>> DirectedGraph<T>::getEdges() const {
+  std::vector<Edge<T>> edges;
+  for (const auto &[edge, _] : weights)
+    edges.push_back(edge);
+  return edges;
+}
 
 template <typename T>
 GraphType DirectedGraph<T>::getGraphType() const {
