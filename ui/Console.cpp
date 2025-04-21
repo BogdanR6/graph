@@ -1,10 +1,26 @@
 #include "Console.hpp"
 #include "../errors/InvalidInputError.cpp"
 #include <iostream>
+#include <unordered_map>
 #include <vector>
 
 void Console::registerCommand(const std::string& name, CommandHandler handler) {
-    commands[name] = handler;
+  commands[name] = handler;
+}
+
+void Console::documentCommand(const std::string& name, const std::string& description) {
+  man[name] = description;
+}
+
+std::vector<std::string> Console::getRegisteredCommands() const {
+  std::vector<std::string> commandsName;
+  for (const auto &[name, _] : commands)
+    commandsName.push_back(name);
+  return commandsName;
+}
+
+std::unordered_map<std::string, std::string> Console::getMan() const {
+  return man;
 }
 
 void Console::startConsoleLoop() {

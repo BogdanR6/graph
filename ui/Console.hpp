@@ -21,13 +21,13 @@ class Console {
 public:
   using CommandHandler = std::function<CommandResult(const std::vector<std::string>&)>;
   void startConsoleLoop();
-  void registerCommand(const std::string& name, CommandHandler handler);
+  void registerCommand(const std::string &name, CommandHandler handler);
+  void documentCommand(const std::string &name, const std::string &description);
+  std::vector<std::string> getRegisteredCommands() const;
+  std::unordered_map<std::string, std::string> getMan() const;
   std::vector<std::string> parseLine(std::string line) const;
   std::string getInput() const;
 private:
   std::unordered_map<std::string, CommandHandler> commands;
-  
-  // to be moved
-  // void createGraph();
-  // std::unique_ptr<graph::Graph<int>> getGraphFromFile(std::string path);
+  std::unordered_map<std::string, std::string> man;
 };

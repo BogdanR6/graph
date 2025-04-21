@@ -9,14 +9,6 @@
 
 void printMenu() {
   // CLEAR_SCREEN
-  std::cout << "\n--- Graph Menu ---\n";
-  std::cout << "1. Add vertex\n";
-  std::cout << "2. Remove vertex\n";
-  std::cout << "3. Add edge\n";
-  std::cout << "4. Remove edge\n";
-  std::cout << "5. Check if vertex exists\n";
-  std::cout << "6. Check if edge exists\n";
-  std::cout << "7. List all vertices\n";
   std::cout << "8. Show adjacent vertices\n";
   std::cout << "9. Load Graph from file\n";
   std::cout << "10. Get connected components\n";
