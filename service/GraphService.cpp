@@ -1,7 +1,11 @@
 #include "GraphService.hpp"
 #include "../errors/InvalidInputError.cpp"
 #include "../graph/DirectedGraph.hpp"
+#include <stdexcept>
 #include <string>
+#include <fstream>
+#include <sstream>
+#include <algorithm>
 
 
 void GraphService::addVertex(const TElem& vertexId) {
@@ -104,4 +108,85 @@ std::string GraphService::getEdges() {
     output += edge.from + delimitor + edge.to + "\n";
   }
   return output;
+}
+
+std::string GraphService::loadGraph(const std::string &path) {
+  // TODO: It must implement a method of reading isolated vertices (reading lines that have only one id on them)
+  std::ifstream fin(path);
+  if (!fin.is_open())
+    throw std::runtime_error("Could not open file '" + path + "' for reading");
+
+  graph->clear();
+
+  auto split = [](const std::string &str) {
+    std::istringstream iss(str);
+    std::vector<std::string> tokens;
+    std::string token;
+    while (iss >> token)
+      tokens.push_back(token);
+    return tokens;
+  };
+
+  std::string line;
+  if (!std::getline(fin, line))
+    throw std::runtime_error("Empty file");
+
+  std::vector<std::string> firstLine = split(line);
+
+  // FIX: must add all the vertices specified by the nubmer of vertices as to have isolated vertices 
+  if (firstLine.size() == 2 &&
+    std::all_of(firstLine[0].begin(), firstLine[0].end(), ::isdigit) &&
+    std::all_of(firstLine[1].begin(), firstLine[1].end(), ::isdigit)) {
+    // Format 1: vertex_count edge_count
+    int edgeCount = std::stoi(firstLine[1]);
+
+    for (int i = 0; i < edgeCount; ++i) {
+      if (!std::getline(fin, line))
+        throw std::runtime_error("Unexpected end of file while reading edges");
+      auto tokens = split(line);
+      if (tokens.size() != 3)
+        throw std::runtime_error("Expected format 'from to cost' on line " + std::to_string(i + 2));
+
+      std::string from = tokens[0];
+      std::string to = tokens[1];
+      int cost = std::stoi(tokens[2]);
+
+      try {
+        graph->addVertex(from);
+      } catch (...){} // ignore if already exists
+      try {
+        graph->addVertex(to);
+      } catch (...){} // ignore if already exists
+      try {
+        graph->addEdge(from, to, cost);
+      } catch (...){} // ignore if already exists
+    }
+  } else {
+    // Determine format by analyzing the first line
+    bool hasCost = firstLine.size() == 3;
+
+    do {
+      if (firstLine.size() != 2 && firstLine.size() != 3)
+        throw std::runtime_error("Invalid line format: '" + line + "'");
+
+      std::string from = firstLine[0];
+      std::string to = firstLine[1];
+      int cost = 1;
+      if (hasCost)
+          cost = std::stoi(firstLine[2]);
+
+      try {
+          graph->addVertex(from);
+      } catch (...){} // ignore if already exists
+      try {
+          graph->addVertex(to);
+      } catch (...){} // ignore if already exists
+      try {
+        graph->addEdge(from, to, cost);
+      } catch (...){} // ignore if already exists
+
+    } while (std::getline(fin, line) && (firstLine = split(line), !line.empty()));
+  }
+
+  return "Successfully loaded the graph";
 }

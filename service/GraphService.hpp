@@ -27,6 +27,8 @@ public:
 
   std::string getEdges();
 
+  std::string loadGraph(const std::string &path);
+
 private:
   std::unique_ptr<graph::Graph<TElem>> graph;
 };

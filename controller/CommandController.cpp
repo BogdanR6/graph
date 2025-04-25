@@ -116,4 +116,12 @@ CommandController::CommandController(Console& console, GraphService& graphServic
 
     return {graphService.getEdges()};
   });
+
+  console.documentCommand("load_graph", "Loads a graph from a file");
+  console.registerCommand("load_graph", [&](const auto& args) -> CommandResult {
+    if (args.size() != 2)
+      throw InvalidUsageError("Usage: load_graph <file_path>");
+    std::string path = args[1];
+    return {graphService.loadGraph(path)};
+  });
 }
