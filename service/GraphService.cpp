@@ -111,7 +111,6 @@ std::string GraphService::getEdges() {
 }
 
 std::string GraphService::loadGraph(const std::string &path) {
-  // TODO: It must implement a method of reading isolated vertices (reading lines that have only one id on them)
   std::ifstream fin(path);
   if (!fin.is_open())
     throw std::runtime_error("Could not open file '" + path + "' for reading");
@@ -133,11 +132,14 @@ std::string GraphService::loadGraph(const std::string &path) {
 
   std::vector<std::string> firstLine = split(line);
 
-  // FIX: must add all the vertices specified by the nubmer of vertices as to have isolated vertices 
   if (firstLine.size() == 2 &&
     std::all_of(firstLine[0].begin(), firstLine[0].end(), ::isdigit) &&
     std::all_of(firstLine[1].begin(), firstLine[1].end(), ::isdigit)) {
     // Format 1: vertex_count edge_count
+    int vertexCount = std::stoi(firstLine[0]);
+    for (int i = 0; i < vertexCount; ++i)
+        graph->addVertex(std::to_string(i));
+      
     int edgeCount = std::stoi(firstLine[1]);
 
     for (int i = 0; i < edgeCount; ++i) {
@@ -162,31 +164,42 @@ std::string GraphService::loadGraph(const std::string &path) {
       } catch (...){} // ignore if already exists
     }
   } else {
-    // Determine format by analyzing the first line
     bool hasCost = firstLine.size() == 3;
 
     do {
-      if (firstLine.size() != 2 && firstLine.size() != 3)
-        throw std::runtime_error("Invalid line format: '" + line + "'");
+      auto tokens = firstLine;  // the split line 
 
-      std::string from = firstLine[0];
-      std::string to = firstLine[1];
-      int cost = 1;
-      if (hasCost)
-          cost = std::stoi(firstLine[2]);
+      if (tokens.size() == 1) {
+        // Single vertex: isolated vertex
+        std::string vertex = tokens[0];
+        try {
+          graph->addVertex(vertex);
+        } catch (...) {} // ignore if already exists
+      } 
+      else if (tokens.size() == 2 || tokens.size() == 3) {
+        // Edge: from to [cost]
+        std::string from = tokens[0];
+        std::string to = tokens[1];
+        int cost = 1;
+        if (tokens.size() == 3)
+          cost = std::stoi(tokens[2]);
 
-      try {
-          graph->addVertex(from);
-      } catch (...){} // ignore if already exists
-      try {
-          graph->addVertex(to);
-      } catch (...){} // ignore if already exists
-      try {
-        graph->addEdge(from, to, cost);
-      } catch (...){} // ignore if already exists
+        try {
+            graph->addVertex(from);
+        } catch (...) {}
+        try {
+            graph->addVertex(to);
+        } catch (...) {}
+        try {
+            graph->addEdge(from, to, cost);
+        } catch (...) {}
+      } 
+      else {
+          throw std::runtime_error("Invalid line format: '" + line + "'");
+      }
 
     } while (std::getline(fin, line) && (firstLine = split(line), !line.empty()));
-  }
+}
 
   return "Successfully loaded the graph";
 }
