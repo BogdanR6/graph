@@ -22,7 +22,7 @@ getConnectedComponentsDFS(const graph::UndirectedGraph<int> &g) {
     while (!stk.empty()) {
       int top = stk.top();
       stk.pop();
-      for (const auto &adj : g.getAdjacentVertices(top)) {
+      for (const auto &[_, adj, __] : g.getAdjacentEdges(top)) {
         if (!visited[adj]) {
           stk.push(adj);
           visited[adj] = true;

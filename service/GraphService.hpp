@@ -19,15 +19,16 @@ public:
   void removeEdge(const TElem &fromVertexId, const TElem &toVertexId);
   bool isEdge(const TElem &fromVertexId, const TElem &toVertexId);
 
-  std::string getAdjacentVertices(const TElem &vertexId);
-  std::string getOutboundVertices(const TElem &vertexId);
-  std::string getOutboundInbound(const TElem &vertexId);
+  std::string getAdjacentEdges(const TElem &vertexId) const;
+  std::string getOutboundEdges(const TElem &vertexId) const;
+  std::string getInboundEdges(const TElem &vertexId) const;
 
   std::string getVertices();
 
   std::string getEdges();
 
   std::string loadGraph(const std::string &path);
+  void saveGraph(const std::string& path) const;
 
 private:
   std::unique_ptr<graph::Graph<TElem>> graph;

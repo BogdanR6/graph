@@ -13,6 +13,9 @@ template <typename T>
 struct Edge {
   T from;
   T to;
+  int weight;
+  Edge(const T &from, const T &to) : from(from), to(to), weight(1) {}
+  Edge(const T &from, const T &to, const int &weight) : from(from), to(to), weight(weight) {}
   bool operator==(const Edge& other) const {
     return from == other.from && to == other.to;
   }
@@ -46,28 +49,4 @@ public:
   virtual std::unordered_set<T>::const_iterator begin() const = 0;
   virtual std::unordered_set<T>::const_iterator end() const = 0;
 };
-// template <typename T>
-// struct Iterator {
-// 	using iterator_category = std::forward_iterator_tag;
-//   using difference_type   = std::ptrdiff_t;
-//   using value_type        = T;
-//   using pointer           = T*;
-//   using reference         = T&;
-
-// 	Iterator(pointer ptr) : m_ptr(ptr) {}
-// 	reference operator*() const { return *m_ptr; }
-//   pointer operator->() { return m_ptr; }
-
-//   // Prefix increment
-//   Iterator& operator++() { m_ptr++; return *this; }
-
-//   // Postfix increment
-//   Iterator operator++(int) { Iterator tmp = *this; ++(*this); return tmp; }
-
-//   friend bool operator== (const Iterator& a, const Iterator& b) { return
-//   a.m_ptr == b.m_ptr; }; friend bool operator!= (const Iterator& a, const
-//   Iterator& b) { return a.m_ptr != b.m_ptr; };
-// private:
-// 	pointer m_ptr;
-// };
 } // namespace graph

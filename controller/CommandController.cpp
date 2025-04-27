@@ -105,7 +105,7 @@ CommandController::CommandController(Console& console, GraphService& graphServic
       throw InvalidUsageError("Usage: list_adj <vertex_id>");
 
     TElem vertexId = args[1];
-    return {graphService.getAdjacentVertices(vertexId)};
+    return {graphService.getAdjacentEdges(vertexId)};
   });
   
 
@@ -123,5 +123,16 @@ CommandController::CommandController(Console& console, GraphService& graphServic
       throw InvalidUsageError("Usage: load_graph <file_path>");
     std::string path = args[1];
     return {graphService.loadGraph(path)};
+  });
+
+  console.documentCommand("save_graph", "Saves the graph to file");
+  console.registerCommand("save_graph", [&](const auto& args) -> CommandResult {
+    if (args.size() != 2 && args.size() != 1)
+      throw InvalidUsageError("Usage: save_graph [file_path]");
+    std::string path = "graph.txt";
+    if (args.size() == 2)
+      path = args[1];
+    graphService.saveGraph(path);
+    return {"Graph saved successfully"};
   });
 }

@@ -47,14 +47,14 @@ std::string GraphService::getVertices() {
 }
 
 
-std::string GraphService::getAdjacentVertices(const TElem &vertexId) {
+std::string GraphService::getAdjacentEdges(const TElem &vertexId) const {
   // TODO: add support for all types of graphs 
   if (graph->getGraphType() != graph::GraphType::Undirected)
     throw InvalidOperationOnGraphType("Adjacent Vertices are available only for Undirected graphs");
   std::string vertices = "The adjacent vertices of " + vertexId + " are:\n";
   auto *undirected = dynamic_cast<graph::UndirectedGraph<TElem>*>(graph.get());
   int count = 0;
-  for (const auto& vertex : undirected->getAdjacentVertices(vertexId)) {
+  for (const auto& [_, vertex, __] : undirected->getAdjacentEdges(vertexId)) {
     vertices += vertex + " ";
     ++count;
   }
@@ -65,13 +65,13 @@ std::string GraphService::getAdjacentVertices(const TElem &vertexId) {
 }
 
 
-std::string GraphService::getOutboundVertices(const TElem &vertexId) {
+std::string GraphService::getOutboundEdges(const TElem &vertexId) const {
   if (graph->getGraphType() != graph::GraphType::Directed)
     throw InvalidOperationOnGraphType("Outbound Vertices are defined only for Directed graphs");
   std::string vertices = "The outbound vertices of " + vertexId + " are:\n";
   auto *directed = dynamic_cast<graph::DirectedGraph<TElem>*>(graph.get());
   int count = 0;
-  for (const auto& vertex : directed->getOutboundVertices(vertexId)) {
+  for (const auto& [_, vertex, __] : directed->getOutboundEdges(vertexId)) {
     vertices += vertex + " ";
     ++count;
   }
@@ -82,13 +82,13 @@ std::string GraphService::getOutboundVertices(const TElem &vertexId) {
 }
 
 
-std::string GraphService::getOutboundInbound(const TElem &vertexId) {
+std::string GraphService::getInboundEdges(const TElem &vertexId) const {
   if (graph->getGraphType() != graph::GraphType::Directed)
     throw InvalidOperationOnGraphType("Inbound Vertices are defined only for Directed graphs");
   std::string vertices = "The inbound vertices of " + vertexId + " are:\n";
   auto *directed = dynamic_cast<graph::DirectedGraph<TElem>*>(graph.get());
   int count = 0;
-  for (const auto& vertex : directed->getInboundVertices(vertexId)) {
+  for (const auto& [vertex, _, __] : directed->getInboundEdges(vertexId)) {
     vertices += vertex + " "; 
     ++count;
   }
@@ -202,4 +202,40 @@ std::string GraphService::loadGraph(const std::string &path) {
 }
 
   return "Successfully loaded the graph";
+}
+
+
+void GraphService::saveGraph(const std::string& path) const {
+  std::ofstream fout(path);
+  if (!fout.is_open())
+    throw std::runtime_error("Could not open file '" + path + "' for writing");
+
+  if (graph->getGraphType() == graph::GraphType::Directed) {
+    auto *directed = dynamic_cast<graph::DirectedGraph<TElem>*>(graph.get());
+    for (const auto &from : *directed) {
+      for (const auto &[_, to, cost] : directed->getOutboundEdges(from))
+          fout << from << " " << to << " " << cost << "\n";
+    }
+    for (const auto& vertex : *directed) {
+      auto outEdges = directed->getOutboundEdges(vertex);
+      auto inEdges = directed->getInboundEdges(vertex);
+
+      if (outEdges.begin() == outEdges.end() && inEdges.begin() == inEdges.end()) {
+        fout << vertex << "\n";
+      }
+    }
+  }
+
+  else if (graph->getGraphType() == graph::GraphType::Undirected) {
+    auto *undirected = dynamic_cast<graph::UndirectedGraph<TElem>*>(graph.get());
+    for (const auto &vertex : *undirected) {
+      auto adjacentEdges = undirected->getAdjacentEdges(vertex);
+      if (adjacentEdges.empty())
+        fout << vertex << "\n";
+      else for (const auto &edge : adjacentEdges) {
+          fout << edge.from << " " << edge.to << " " << edge.weight << "\n";
+      }
+    }
+  }
+  fout.close();
 }
