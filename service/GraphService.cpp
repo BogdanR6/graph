@@ -59,7 +59,7 @@ std::string GraphService::getAdjacentEdges(const TElem &vertexId) const {
     ++count;
   }
   if (count == 0) {
-    vertices = "The vertex " + vertexId + " has no adjacent vertices\n";
+    vertices = "The vertex " + vertexId + " has no adjacent vertices";
   }
   return vertices; 
 }
@@ -76,7 +76,7 @@ std::string GraphService::getOutboundEdges(const TElem &vertexId) const {
     ++count;
   }
   if (count == 0) {
-    vertices = "The vertex " + vertexId + " has no outbound vertices\n";
+    vertices = "The vertex " + vertexId + " has no outbound vertices";
   }
   return vertices;
 }
@@ -93,7 +93,7 @@ std::string GraphService::getInboundEdges(const TElem &vertexId) const {
     ++count;
   }
   if (count == 0) {
-    vertices = "The vertex " + vertexId + " has no inbound vertices\n";
+    vertices = "The vertex " + vertexId + " has no inbound vertices";
   }
   return vertices;
 }
@@ -107,6 +107,7 @@ std::string GraphService::getEdges() {
   for (const auto& edge : graph->getEdges()) {
     output += edge.from + delimitor + edge.to + "\n";
   }
+  output = output.substr(0, output.length() - 1); // eliminate the last new line
   return output;
 }
 

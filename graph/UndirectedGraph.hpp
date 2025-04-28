@@ -106,9 +106,10 @@ template <typename T> void UndirectedGraph<T>::addVertex(const T &v) {
 template <typename T> void UndirectedGraph<T>::removeVertex(const T &v) {
   if (!isVertex(v))
     throw std::runtime_error("Vertex not in the graph");
-
-  for (const auto &ver : adjacency[v]) {
-    adjacency[ver].erase(v);
+  
+  auto adjacentToV = adjacency[v];
+  for (const auto &ver : adjacentToV) {
+    removeEdge(v, ver);
   }
   adjacency.erase(v);
   vertices.erase(v);
@@ -139,6 +140,12 @@ void UndirectedGraph<T>::removeEdge(const T &from, const T &to) {
 
   adjacency[from].erase(to);
   adjacency[to].erase(from);
+  auto edge_it = edges.find(Edge<T>{from, to});
+  if (edge_it == edges.end())
+    edge_it = edges.find(Edge<T>{to, from});
+  if (edge_it == edges.end())
+    throw std::runtime_error("The edge " + from + " -- " + to + " does not exists in the edges set");
+  edges.erase(edge_it);
 }
 
 template <typename T> int UndirectedGraph<T>::getNrOfVertices() const {

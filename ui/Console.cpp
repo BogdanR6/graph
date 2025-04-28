@@ -38,7 +38,10 @@ void Console::startConsoleLoop() {
     CommandResult result;
     try {
       result = commandMapIt->second(args);
-    } catch (InvalidUsageError& e) {
+    } catch (InvalidUsageError &e) {
+      std::cout << e.what() << '\n';
+      continue;
+    } catch (std::runtime_error &e) {
       std::cout << e.what() << '\n';
       continue;
     }

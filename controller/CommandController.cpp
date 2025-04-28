@@ -12,6 +12,7 @@ CommandController::CommandController(Console& console, GraphService& graphServic
     for (const auto &[command, description] : console.getMan()) {
       commandsMan += command + " -> " + description + "\n";
     }
+    commandsMan = commandsMan.substr(0, commandsMan.length() - 1); // eliminate the last new line
     return {commandsMan};
   });
 
