@@ -9,8 +9,6 @@
 
 void printMenu() {
   // CLEAR_SCREEN
-  std::cout << "8. Show adjacent vertices\n";
-  std::cout << "9. Load Graph from file\n";
   std::cout << "10. Get connected components\n";
   // std::cout << "11. Show adjacent vertices\n";
   // std::cout << "12. Show adjacent vertices\n";

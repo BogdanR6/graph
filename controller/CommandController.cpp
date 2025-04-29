@@ -1,5 +1,6 @@
 #include "CommandController.hpp"
 #include "../errors/InvalidInputError.cpp"
+#include <string>
 
 CommandController::CommandController(Console& console, GraphService& graphService)
   : graphService(graphService) {
@@ -135,5 +136,23 @@ CommandController::CommandController(Console& console, GraphService& graphServic
       path = args[1];
     graphService.saveGraph(path);
     return {"Graph saved successfully"};
+  });
+
+  console.documentCommand("get_connected_components", "Returns the connected components of the undirected graph");
+  console.registerCommand("get_connected_components", [&](const auto& args) -> CommandResult {
+    if (args.size() != 1)
+      throw InvalidUsageError("Usage: get_connected_components");
+    auto graphs = graphService.getConnectedComponentsOfUnorderedGraph();
+    std::string output = "";
+    int connected_component_id = 1;
+    for (const auto &graph : graphs) {
+      output += "Component " + std::to_string(connected_component_id++) + "\n";
+      for (const auto &vertex : graph) {
+        output += vertex + " ";
+      }
+      output += "\n";
+    }
+    output = output.substr(0, output.length() - 1);
+    return {output};
   });
 }

@@ -1,6 +1,7 @@
 #include "GraphService.hpp"
 #include "../errors/InvalidInputError.cpp"
 #include "../graph/DirectedGraph.hpp"
+#include "../graph/algorithms/UndirectedGraphAlgorithms.hpp"
 #include <stdexcept>
 #include <string>
 #include <fstream>
@@ -239,4 +240,12 @@ void GraphService::saveGraph(const std::string& path) const {
     }
   }
   fout.close();
+}
+
+
+std::vector<graph::UndirectedGraph<TElem>> GraphService::getConnectedComponentsOfUnorderedGraph() const {
+  if (graph->getGraphType() != graph::GraphType::Undirected)
+    throw std::runtime_error("getConnectedComponentsOfUndirectedGraph is only available for undirected graphs");
+  auto undirected = dynamic_cast<graph::UndirectedGraph<TElem>*>(graph.get());
+  return graph::algorithms::getConnectedComponentsDFS(*undirected);
 }

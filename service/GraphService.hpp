@@ -3,6 +3,7 @@
 #include "../graph/UndirectedGraph.hpp"
 #include <memory>
 #include <string>
+#include <vector>
 
 using TElem = std::string;
 
@@ -29,6 +30,8 @@ public:
 
   std::string loadGraph(const std::string &path);
   void saveGraph(const std::string& path) const;
+
+  std::vector<graph::UndirectedGraph<TElem>> getConnectedComponentsOfUnorderedGraph() const;
 
 private:
   std::unique_ptr<graph::Graph<TElem>> graph;
