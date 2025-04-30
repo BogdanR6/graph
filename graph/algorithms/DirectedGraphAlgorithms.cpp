@@ -71,8 +71,8 @@ const int INF = std::numeric_limits<int>::max() / 2; // Avoid overflow in additi
 // Computes the minimum cost walk between two vertices using matrix multiplication algorithm.
 // Detects negative cost cycles.
 struct WalkResult {
-  std::vector<std::vector<int>> dist;
-  std::vector<std::vector<int>> pred;
+  std::vector<std::vector<int>> dist; // Cost of the shortest path from vertex i to vertex j
+  std::vector<std::vector<int>> pred; // Predecessor of vertex j on the shortest path from i
   std::unordered_map<std::string, int> index;
   std::vector<std::string> reverseIndex;
 };
@@ -100,11 +100,12 @@ WalkResult findLowestCostWalk(const graph::DirectedGraph<std::string> &g) {
       int u = index[v];
       int v_ = index[to];
       dist[u][v_] = g.getEdgeWeight(v, to);
+
       pred[u][v_] = u;
     }
   }
 
-  // Floyd-Warshall with path reconstruction
+  // Floyd-Warshall + path reconstruction
   for (int k = 0; k < n; ++k) {
     for (int i = 0; i < n; ++i) {
       for (int j = 0; j < n; ++j) {
@@ -152,3 +153,6 @@ std::pair<std::vector<std::string>, int> getLowestCostWalk(const graph::Directed
 
 } // namespace algorithms
 } // namespace graph
+//
+//
+// for next time 4.2
