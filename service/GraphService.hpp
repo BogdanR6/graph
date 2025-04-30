@@ -32,6 +32,7 @@ public:
   void saveGraph(const std::string& path) const;
 
   std::vector<graph::UndirectedGraph<TElem>> getConnectedComponentsOfUnorderedGraph() const;
+  std::pair<std::vector<TElem>, int> getLowestCostWalk(const TElem &start, const TElem &end) const;
 
 private:
   std::shared_ptr<graph::Graph<TElem>> graph;

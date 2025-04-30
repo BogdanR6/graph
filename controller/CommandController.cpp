@@ -156,4 +156,23 @@ CommandController::CommandController(Console& console, GraphService& graphServic
     output = output.substr(0, output.length() - 1);
     return {output};
   });
+
+  console.documentCommand("get_lowest_cost_walk", "Returns the lowest cost walk between two vertices");
+  console.registerCommand("get_lowest_cost_walk", [&](const auto& args) -> CommandResult {
+    if (args.size() != 3)
+      throw InvalidUsageError("Usage: get_shortest_path <start> <end>");
+    std::string start = args[1];
+    std::string end = args[2];
+    auto walkResult = graphService.getLowestCostWalk(start, end);
+    std::vector<std::string> cheapestPath = walkResult.first;
+    int cost = walkResult.second;
+    if (cheapestPath.size() == 0)
+      return {"There is not path between " + start + " and " + end};
+    std::string output = "The shortest path between " + start + " and " + end + " is:\n";
+    for (const auto &vertex : cheapestPath) {
+      output += vertex + " ";
+    }
+    output += "\nWith cost " + std::to_string(cost);
+    return {output};
+  });
 }

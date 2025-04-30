@@ -2,6 +2,7 @@
 #include "../errors/InvalidInputError.cpp"
 #include "../graph/DirectedGraph.hpp"
 #include "../graph/algorithms/UndirectedGraphAlgorithms.hpp"
+#include "../graph/algorithms/DirectedGraphAlgorithms.hpp"
 #include "Graph.hpp"
 #include "UndirectedGraph.hpp"
 #include <stdexcept>
@@ -255,4 +256,12 @@ std::vector<graph::UndirectedGraph<TElem>> GraphService::getConnectedComponentsO
     throw std::runtime_error("getConnectedComponentsOfUndirectedGraph is only available for undirected graphs");
   auto undirected = dynamic_cast<graph::UndirectedGraph<TElem>*>(graph.get());
   return graph::algorithms::getConnectedComponentsDFS(*undirected);
+}
+
+
+std::pair<std::vector<TElem>, int> GraphService::getLowestCostWalk(const TElem &start, const TElem &end) const {
+  if (graph->getGraphType() != graph::GraphType::Directed)
+    throw std::runtime_error("getConnectedComponentsOfUndirectedGraph is only available for undirected graphs");
+  auto directed = dynamic_cast<graph::DirectedGraph<TElem>*>(graph.get());
+  return graph::algorithms::getLowestCostWalk(*directed, start, end);
 }

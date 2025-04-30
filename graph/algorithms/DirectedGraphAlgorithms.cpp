@@ -1,9 +1,11 @@
 #include "DirectedGraphAlgorithms.hpp"
 #include "../DirectedGraph.hpp"
+#include <algorithm>
 #include <queue>
 #include <limits>
 #include <stdexcept>
 #include <string>
+#include <utility>
 
 namespace graph {
 namespace algorithms {
@@ -123,7 +125,7 @@ WalkResult findLowestCostWalk(const graph::DirectedGraph<std::string> &g) {
   return {dist, pred, index, reverseIndex};
 }
 
-std::vector<std::string> reconstructWalk(const WalkResult &result, const std::string &start, const std::string &end) {
+std::pair<std::vector<std::string>, int> reconstructWalk(const WalkResult &result, const std::string &start, const std::string &end) {
   int s = result.index.at(start);
   int t = result.index.at(end);
   if (result.dist[s][t] == std::numeric_limits<int>::max() / 2)
@@ -136,14 +138,14 @@ std::vector<std::string> reconstructWalk(const WalkResult &result, const std::st
     pathIndices.push_back(at);
   }
   pathIndices.push_back(s);
-  pathIndices.reserve(pathIndices.size());
+  std::reverse(pathIndices.begin(), pathIndices.end());
 
   std::vector<std::string> path;
   for (int idx : pathIndices)
     path.push_back(result.reverseIndex[idx]);
-  return path;
+  return std::make_pair(path, result.dist[s][t]);
 }
-std::vector<std::string> getLowestCostWalk(const graph::DirectedGraph<std::string> &g, const std::string &start, const std::string &end) {
+std::pair<std::vector<std::string>, int> getLowestCostWalk(const graph::DirectedGraph<std::string> &g, const std::string &start, const std::string &end) {
   auto result = findLowestCostWalk(g);
   return reconstructWalk(result, start, end);
 }
