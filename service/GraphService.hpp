@@ -28,11 +28,11 @@ public:
 
   std::string getEdges();
 
-  std::string loadGraph(const std::string &path);
+  std::string loadGraph(const std::string &path, const std::string &graphType);
   void saveGraph(const std::string& path) const;
 
   std::vector<graph::UndirectedGraph<TElem>> getConnectedComponentsOfUnorderedGraph() const;
 
 private:
-  std::unique_ptr<graph::Graph<TElem>> graph;
+  std::shared_ptr<graph::Graph<TElem>> graph;
 };

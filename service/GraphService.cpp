@@ -2,6 +2,8 @@
 #include "../errors/InvalidInputError.cpp"
 #include "../graph/DirectedGraph.hpp"
 #include "../graph/algorithms/UndirectedGraphAlgorithms.hpp"
+#include "Graph.hpp"
+#include "UndirectedGraph.hpp"
 #include <stdexcept>
 #include <string>
 #include <fstream>
@@ -112,11 +114,16 @@ std::string GraphService::getEdges() {
   return output;
 }
 
-std::string GraphService::loadGraph(const std::string &path) {
+std::string GraphService::loadGraph(const std::string &path, const std::string &graphType) {
   std::ifstream fin(path);
   if (!fin.is_open())
     throw std::runtime_error("Could not open file '" + path + "' for reading");
-
+  if (graphType == "undirected")
+    graph = std::make_shared<graph::UndirectedGraph<std::string>>();
+  else if (graphType == "directed") 
+    graph = std::make_shared<graph::DirectedGraph<std::string>>();
+  else 
+    throw std::runtime_error("'" + graphType + "' is not a valid graph type");
   graph->clear();
 
   auto split = [](const std::string &str) {

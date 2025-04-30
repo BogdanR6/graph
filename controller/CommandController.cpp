@@ -121,10 +121,11 @@ CommandController::CommandController(Console& console, GraphService& graphServic
 
   console.documentCommand("load_graph", "Loads a graph from a file");
   console.registerCommand("load_graph", [&](const auto& args) -> CommandResult {
-    if (args.size() != 2)
-      throw InvalidUsageError("Usage: load_graph <file_path>");
-    std::string path = args[1];
-    return {graphService.loadGraph(path)};
+    if (args.size() != 3)
+      throw InvalidUsageError("Usage: load_graph <graph_type> <file_path>");
+    std::string graphType = args[1];
+    std::string path = args[2];
+    return {graphService.loadGraph(path, graphType)};
   });
 
   console.documentCommand("save_graph", "Saves the graph to file");
