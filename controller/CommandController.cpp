@@ -175,4 +175,17 @@ CommandController::CommandController(Console& console, GraphService& graphServic
     output += "\nWith cost " + std::to_string(cost);
     return {output};
   });
+
+  console.documentCommand("get_topological_sort", "Returns the vertices topologically sorted");
+  console.registerCommand("get_topological_sort", [&](const auto& args) -> CommandResult {
+    if (args.size() != 1)
+      throw InvalidUsageError("Usage: get_topological_sort");
+    std::string output = "";
+    for (const auto &v : graphService.topologicalSort()) {
+      output += v + " ";
+    }
+    if (output == "")
+      return {"Unable to topologically sort"};
+    return {output};
+  });
 }

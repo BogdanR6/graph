@@ -261,7 +261,15 @@ std::vector<graph::UndirectedGraph<TElem>> GraphService::getConnectedComponentsO
 
 std::pair<std::vector<TElem>, int> GraphService::getLowestCostWalk(const TElem &start, const TElem &end) const {
   if (graph->getGraphType() != graph::GraphType::Directed)
-    throw std::runtime_error("getConnectedComponentsOfUndirectedGraph is only available for undirected graphs");
+    throw std::runtime_error("getLowestCostWalk is only available for directed graphs");
   auto directed = dynamic_cast<graph::DirectedGraph<TElem>*>(graph.get());
   return graph::algorithms::getLowestCostWalk(*directed, start, end);
+}
+
+
+std::vector<std::string> GraphService::topologicalSort() const {
+  if (graph->getGraphType() != graph::GraphType::Directed) 
+    throw std::runtime_error("topologicalSort is only available for directed graphs");
+  auto directed = dynamic_cast<graph::DirectedGraph<TElem>*>(graph.get());
+  return graph::algorithms::topologicalSort(*directed);
 }

@@ -33,6 +33,7 @@ public:
 
   std::vector<graph::UndirectedGraph<TElem>> getConnectedComponentsOfUnorderedGraph() const;
   std::pair<std::vector<TElem>, int> getLowestCostWalk(const TElem &start, const TElem &end) const;
+  std::vector<std::string> topologicalSort() const;
 
 private:
   std::shared_ptr<graph::Graph<TElem>> graph;

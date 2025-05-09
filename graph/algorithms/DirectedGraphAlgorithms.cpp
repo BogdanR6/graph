@@ -7,6 +7,7 @@
 #include <string>
 #include <utility>
 #include <iostream>
+#include <stack>
 
 namespace graph {
 namespace algorithms {
@@ -72,8 +73,8 @@ const int INF = std::numeric_limits<int>::max() / 2; // Avoid overflow in additi
 // Computes the minimum cost walk between two vertices using matrix multiplication algorithm.
 // Detects negative cost cycles.
 struct WalkResult {
-  std::vector<std::vector<int>> dist;
-  std::vector<std::vector<int>> pred;
+  std::vector<std::vector<int>> dist; // Cost of the shortest path from vertex i to vertex j
+  std::vector<std::vector<int>> pred; // Predecessor of vertex j on the shortest path from i
   std::unordered_map<std::string, int> index;
   std::vector<std::string> reverseIndex;
 };
@@ -117,7 +118,7 @@ WalkResult findLowestCostWalk(const graph::DirectedGraph<std::string> &g) {
     }
   }
 
-  // Floyd-Warshall with path reconstruction
+  // Floyd-Warshall + path reconstruction
   for (int k = 0; k < n; ++k) {
     for (int i = 0; i < n; ++i) {
       for (int j = 0; j < n; ++j) {
@@ -161,6 +162,39 @@ std::pair<std::vector<std::string>, int> reconstructWalk(const WalkResult &resul
 std::pair<std::vector<std::string>, int> getLowestCostWalk(const graph::DirectedGraph<std::string> &g, const std::string &start, const std::string &end) {
   auto result = findLowestCostWalk(g);
   return reconstructWalk(result, start, end);
+}
+
+/*
+* 4.2 Write a program that, given a list of activities with duration and list of prerequisites for each activity, does the following:
+*
+*   verify if the corresponding graph is a DAG and performs a topological sorting of the activities using the algorithm based on predecessor counters;
+*   prints the earliest and the latest starting time for each activity and the total time of the project.
+*   prints the critical activities. 
+*/
+
+std::vector<std::string> topologicalSort(const graph::DirectedGraph<std::string> &g) {
+  graph::DirectedGraph<std::string> aux = g;
+  std::vector<std::string> sortedVertices;
+  std::stack<std::string> startingVertices;
+  for (const auto &v : aux) {
+    if (aux.getInboundEdges(v).begin() == aux.getInboundEdges(v).end()) { // no inbound edges
+      startingVertices.push(v);
+    }
+  }
+  if (startingVertices.empty())
+    return {}; // cycle or empty
+  while (!startingVertices.empty()) {
+    auto v = startingVertices.top(); startingVertices.pop();
+    for (const auto &[from, to, _] : aux.getOutboundEdges(v)) {
+      aux.removeEdge(from, to);
+      if (aux.getInboundEdges(to).begin() == aux.getInboundEdges(to).end()) { // no inbound edges
+        sortedVertices.push_back(to);
+      }
+    }
+  }
+  if (g.getNrOfEdges() != 0)
+    return {}; // cycle
+  return sortedVertices;
 }
 
 } // namespace algorithms
