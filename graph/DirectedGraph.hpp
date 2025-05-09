@@ -40,7 +40,26 @@ public:
 
   OutboundEdgesIterator<T> getOutboundEdges(const T &v) const;
   InboundEdgesIterator<T> getInboundEdges(const T &v) const;
+
+  std::unordered_set<std::string> getAllOutboundVertices(const T &v) const;
+  std::unordered_set<std::string> getAllInnoundVertices(const T &v) const;
 };
+
+template <typename T>
+std::unordered_set<std::string> DirectedGraph<T>::getAllInnoundVertices(const T &v) const {
+  if (!isVertex(v))
+    throw std::runtime_error("v is not in the graph");
+
+  return inAdjacency.at(v);
+}
+
+template <typename T>
+std::unordered_set<std::string> DirectedGraph<T>::getAllOutboundVertices(const T &v) const {
+  if (!isVertex(v))
+    throw std::runtime_error("v is not in the graph");
+
+  return outAdjacency.at(v);
+}
 
 template <typename T>
 std::vector<Edge<T>> DirectedGraph<T>::getEdges() const {

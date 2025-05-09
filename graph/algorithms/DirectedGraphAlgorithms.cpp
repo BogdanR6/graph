@@ -172,7 +172,7 @@ std::pair<std::vector<std::string>, int> getLowestCostWalk(const graph::Directed
 *   prints the critical activities. 
 */
 
-std::vector<std::string> topologicalSort(const graph::DirectedGraph<std::string> &g) {
+std::vector<std::string> topologicalSort(const graph::DirectedGraph<std::string> &g) { //BUG: 
   graph::DirectedGraph<std::string> aux = g;
   std::vector<std::string> sortedVertices;
   std::stack<std::string> startingVertices;
@@ -184,8 +184,8 @@ std::vector<std::string> topologicalSort(const graph::DirectedGraph<std::string>
   if (startingVertices.empty())
     return {}; // cycle or empty
   while (!startingVertices.empty()) {
-    auto v = startingVertices.top(); startingVertices.pop();
-    for (const auto &[from, to, _] : aux.getOutboundEdges(v)) {
+    auto from = startingVertices.top(); startingVertices.pop();
+    for (const auto &to : aux.getAllOutboundVertices(from)) {
       aux.removeEdge(from, to);
       if (aux.getInboundEdges(to).begin() == aux.getInboundEdges(to).end()) { // no inbound edges
         sortedVertices.push_back(to);
