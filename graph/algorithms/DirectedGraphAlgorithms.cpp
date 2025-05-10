@@ -103,17 +103,6 @@ WalkResult findLowestCostWalk(const graph::DirectedGraph<std::string> &g) {
       int v_ = index[to];
       dist[u][v_] = g.getEdgeWeight(v, to);
 
-      // to be removed
-      for (const auto &row : dist) {
-        for (const auto &col : row) {
-          if (col == INF) std::cout << "I ";
-          else std::cout << col << " ";
-        }
-        std::cout << "\n";
-      }
-      std::cout << "\n";
-      // 'till here
-      
       pred[u][v_] = u;
     }
   }
@@ -199,3 +188,6 @@ std::vector<std::string> topologicalSort(const graph::DirectedGraph<std::string>
 
 } // namespace algorithms
 } // namespace graph
+//
+//
+// for next time 4.2
