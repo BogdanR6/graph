@@ -6,7 +6,6 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
-#include <iostream>
 #include <stack>
 
 namespace graph {
@@ -23,7 +22,7 @@ int lowestLengthFBfs(graph::DirectedGraph<std::string> &g, std::string start, st
     std::string t = q.front();
     q.pop();
 
-    for (const auto &[_, to, __] : g.getOutboundEdges(t)) {
+    for (const auto &[_, to, __] : g.initOutboundEdgesIt(t)) {
       // If we have reached the end node, return the distance
       if (to == end)
         return distance[t] + 1;
@@ -51,7 +50,7 @@ int lowestLengthBBfs(graph::DirectedGraph<std::string> &g, std::string start, st
     std::string t = q.front();
     q.pop();
 
-    for (const auto &[_, to, __] : g.getInboundEdges(t)) {
+    for (const auto &[_, to, __] : g.initInboundEdgesIt(t)) {
       // If we have reached the end node, return the distance
       if (to == start)
         return distance[t] + 1;
@@ -98,7 +97,7 @@ WalkResult findLowestCostWalk(const graph::DirectedGraph<std::string> &g) {
   for (const auto &v : g) {
     dist[index[v]][index[v]] = 0;
     pred[index[v]][index[v]] = index[v];
-    for (const auto &[_, to, __] : g.getOutboundEdges(v)) {
+    for (const auto &[_, to, __] : g.initOutboundEdgesIt(v)) {
       int u = index[v];
       int v_ = index[to];
       dist[u][v_] = g.getEdgeWeight(v, to);
@@ -160,14 +159,19 @@ std::pair<std::vector<std::string>, int> getLowestCostWalk(const graph::Directed
 *   prints the earliest and the latest starting time for each activity and the total time of the project.
 *   prints the critical activities. 
 */
+struct ActivitiesData {
+  std::unordered_map<std::string, int> erliestStart;
+  std::unordered_map<std::string, int> latestStart;
+  std::vector<std::string> topologicalOrder;
+};
 
-std::vector<std::string> topologicalSort(const graph::DirectedGraph<std::string> &g) {
+std::vector<std::string> getTopologicalOrder(const graph::DirectedGraph<std::string> &g) {
   // Kahn's algorithm
   graph::DirectedGraph<std::string> aux = g;
   std::vector<std::string> sortedVertices;
   std::stack<std::string> startingVertices;
   for (const auto &v : aux) {
-    if (aux.getInboundEdges(v).begin() == aux.getInboundEdges(v).end()) { // no inbound edges
+    if (aux.initInboundEdgesIt(v).begin() == aux.initInboundEdgesIt(v).end()) { // no inbound edges
       startingVertices.push(v);
     }
   }
@@ -178,7 +182,7 @@ std::vector<std::string> topologicalSort(const graph::DirectedGraph<std::string>
     sortedVertices.push_back(from);
     for (const auto &to : aux.getAllOutboundVertices(from)) {
       aux.removeEdge(from, to);
-      if (aux.getInboundEdges(to).begin() == aux.getInboundEdges(to).end()) { // no inbound edges
+      if (aux.initInboundEdgesIt(to).begin() == aux.initInboundEdgesIt(to).end()) { // no inbound edges
         startingVertices.push(to);
       }
     }
@@ -190,6 +194,3 @@ std::vector<std::string> topologicalSort(const graph::DirectedGraph<std::string>
 
 } // namespace algorithms
 } // namespace graph
-//
-//
-// for next time 4.2

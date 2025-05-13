@@ -26,6 +26,7 @@ public:
   void removeVertex(const T &v) override;
   void addEdge(const T &from, const T &to, const int &weight = 1) override;
   void removeEdge(const T &from, const T &to) override;
+  T &getVertex(const T &v) const override;
   int getNrOfVertices() const override;
   int getNrOfEdges() const override;
   int getEdgeWeight(const T &from, const T &to) const override;
@@ -38,15 +39,15 @@ public:
   int getInDegree(const T &v) const;
   int getOutDegree(const T &v) const;
 
-  OutboundEdgesIterator<T> getOutboundEdges(const T &v) const;
-  InboundEdgesIterator<T> getInboundEdges(const T &v) const;
+  OutboundEdgesIterator<T> initOutboundEdgesIt(const T &v) const;
+  InboundEdgesIterator<T> initInboundEdgesIt(const T &v) const;
 
-  std::unordered_set<std::string> getAllOutboundVertices(const T &v) const;
-  std::unordered_set<std::string> getAllInnoundVertices(const T &v) const;
+  std::unordered_set<T> getAllOutboundVertices(const T &v) const;
+  std::unordered_set<T> getAllInnoundVertices(const T &v) const;
 };
 
 template <typename T>
-std::unordered_set<std::string> DirectedGraph<T>::getAllInnoundVertices(const T &v) const {
+std::unordered_set<T> DirectedGraph<T>::getAllInnoundVertices(const T &v) const {
   if (!isVertex(v))
     throw std::runtime_error("v is not in the graph");
 
@@ -54,7 +55,7 @@ std::unordered_set<std::string> DirectedGraph<T>::getAllInnoundVertices(const T 
 }
 
 template <typename T>
-std::unordered_set<std::string> DirectedGraph<T>::getAllOutboundVertices(const T &v) const {
+std::unordered_set<T> DirectedGraph<T>::getAllOutboundVertices(const T &v) const {
   if (!isVertex(v))
     throw std::runtime_error("v is not in the graph");
 
@@ -151,6 +152,15 @@ void DirectedGraph<T>::addEdge(const T &from, const T &to, const int &weight) {
 }
 
 template <typename T>
+T &DirectedGraph<T>::getVertex(const T &v) const {
+  auto it = vertices.find(v);
+  if (it == vertices.end()) {
+    throw std::runtime_error("Vertex not found");
+  }
+  return const_cast<T&>(*it);
+}
+
+template <typename T>
 void DirectedGraph<T>::removeEdge(const T &from, const T &to) {
   if (!isVertex(from))
     throw std::runtime_error("from is not in the graph");
@@ -188,14 +198,14 @@ template <typename T> int DirectedGraph<T>::getOutDegree(const T &v) const {
 }
 
 template <typename T>
-OutboundEdgesIterator<T> DirectedGraph<T>::getOutboundEdges(const T &v) const {
+OutboundEdgesIterator<T> DirectedGraph<T>::initOutboundEdgesIt(const T &v) const {
   if (!isVertex(v))
     throw std::runtime_error("Vertex not in the graph");
   return OutboundEdgesIterator<T>(*this, v);
 }
 
 template <typename T>
-InboundEdgesIterator<T> DirectedGraph<T>::getInboundEdges(const T &v) const {
+InboundEdgesIterator<T> DirectedGraph<T>::initInboundEdgesIt(const T &v) const {
   if (!isVertex(v))
     throw std::runtime_error("Vertex not in the graph");
   return InboundEdgesIterator<T>(*this, v);

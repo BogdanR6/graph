@@ -6,7 +6,8 @@ namespace graph {
 
 enum class GraphType {
   Directed,
-  Undirected
+  Undirected,
+  Activity
 };
 
 template <typename T>
@@ -39,6 +40,7 @@ public:
   virtual void removeEdge(const T &from, const T &to) = 0;
   virtual bool isVertex(const T &v) const = 0;
   virtual bool isEdge(const T &from, const T &to) const = 0;
+  virtual T &getVertex(const T &v) const = 0;
   virtual int getNrOfVertices() const = 0;
   virtual int getNrOfEdges() const = 0;
   virtual int getEdgeWeight(const T &from, const T &to) const = 0;

@@ -75,7 +75,7 @@ std::string GraphService::getOutboundEdges(const TElem &vertexId) const {
   std::string vertices = "The outbound vertices of " + vertexId + " are:\n";
   auto *directed = dynamic_cast<graph::DirectedGraph<TElem>*>(graph.get());
   int count = 0;
-  for (const auto& [_, vertex, __] : directed->getOutboundEdges(vertexId)) {
+  for (const auto& [_, vertex, __] : directed->initOutboundEdgesIt(vertexId)) {
     vertices += vertex + " ";
     ++count;
   }
@@ -92,7 +92,7 @@ std::string GraphService::getInboundEdges(const TElem &vertexId) const {
   std::string vertices = "The inbound vertices of " + vertexId + " are:\n";
   auto *directed = dynamic_cast<graph::DirectedGraph<TElem>*>(graph.get());
   int count = 0;
-  for (const auto& [vertex, _, __] : directed->getInboundEdges(vertexId)) {
+  for (const auto& [vertex, _, __] : directed->initInboundEdgesIt(vertexId)) {
     vertices += vertex + " "; 
     ++count;
   }
@@ -223,12 +223,12 @@ void GraphService::saveGraph(const std::string& path) const {
   if (graph->getGraphType() == graph::GraphType::Directed) {
     auto *directed = dynamic_cast<graph::DirectedGraph<TElem>*>(graph.get());
     for (const auto &from : *directed) {
-      for (const auto &[_, to, cost] : directed->getOutboundEdges(from))
+      for (const auto &[_, to, cost] : directed->initOutboundEdgesIt(from))
           fout << from << " " << to << " " << cost << "\n";
     }
     for (const auto& vertex : *directed) {
-      auto outEdges = directed->getOutboundEdges(vertex);
-      auto inEdges = directed->getInboundEdges(vertex);
+      auto outEdges = directed->initOutboundEdgesIt(vertex);
+      auto inEdges = directed->initInboundEdgesIt(vertex);
 
       if (outEdges.begin() == outEdges.end() && inEdges.begin() == inEdges.end()) {
         fout << vertex << "\n";
@@ -271,5 +271,5 @@ std::vector<std::string> GraphService::topologicalSort() const {
   if (graph->getGraphType() != graph::GraphType::Directed) 
     throw std::runtime_error("topologicalSort is only available for directed graphs");
   auto directed = dynamic_cast<graph::DirectedGraph<TElem>*>(graph.get());
-  return graph::algorithms::topologicalSort(*directed);
+  return graph::algorithms::getTopologicalOrder(*directed);
 }

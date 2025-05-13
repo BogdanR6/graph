@@ -24,6 +24,7 @@ public:
   void removeVertex(const T &v) override;
   void addEdge(const T &from, const T &to, const int &weight = 1) override;
   void removeEdge(const T &from, const T &to) override;
+  T &getVertex(const T &v) const override;
   int getNrOfVertices() const override;
   int getNrOfEdges() const override;
   int getEdgeWeight(const T &from, const T &to) const override;
@@ -146,6 +147,15 @@ void UndirectedGraph<T>::removeEdge(const T &from, const T &to) {
   if (edge_it == edges.end())
     throw std::runtime_error("The edge " + from + " -- " + to + " does not exists in the edges set");
   edges.erase(edge_it);
+}
+
+template <typename T>
+T &UndirectedGraph<T>::getVertex(const T &v) const {
+  auto it = vertices.find(v);
+  if (it == vertices.end()) {
+    throw std::runtime_error("Vertex not found");
+  }
+  return const_cast<T&>(*it);
 }
 
 template <typename T> int UndirectedGraph<T>::getNrOfVertices() const {
