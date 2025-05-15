@@ -7,10 +7,10 @@ namespace special {
 
 struct Activity {
   int id;
-  std::string name;
   int duration;
   int earliestStart = 0;
   int latestStart = 0;
+  std::string name = "";
 
   bool operator==(const Activity &other) const {
     return id == other.id;
