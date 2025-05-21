@@ -7,13 +7,13 @@ private:
     std::vector<Edge> edges;
 
 public:
-    AdjacentEdgesView(const UndirectedGraph& graph, const VertexSharedPtr& vertex) {
+    AdjacentEdgesView(const UndirectedGraph &graph, const idT &fromId) {
         // Find the vertex in the adjacency map
-        auto it = graph.adjacency.find(vertex);
+        auto it = graph.adjacency.find(fromId);
         if (it != graph.adjacency.end()) {
             // Populate edges vector
-            for (const VertexSharedPtr& to : it->second) {
-                edges.push_back(Edge{vertex, to, graph.getEdgeWeight(vertex, to)});
+            for (const idT& toId : it->second) {
+                edges.push_back(Edge{fromId, toId, graph.getEdgeWeight(fromId, toId)});
             }
         }
     }

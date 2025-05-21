@@ -14,21 +14,21 @@ std::vector<Edge> UndirectedGraph::getEdges() const {
 }
 
 
-int UndirectedGraph::getEdgeWeight(const VertexSharedPtr &from, const VertexSharedPtr &to) const {
-  if (!isVertex(from))
+int UndirectedGraph::getEdgeWeight(const idT &fromId, const idT &toId) const {
+  if (!isVertex(fromId))
     throw std::runtime_error("from is not in the graph");
-  if (!isVertex(to))
+  if (!isVertex(toId))
     throw std::runtime_error("to is not in the graph");
 
   // the edge can go either way because the graph is undirected
-  if (!isEdge(from, to) && !isEdge(to, from))
+  if (!isEdge(fromId, toId) && !isEdge(toId, fromId))
     throw std::runtime_error("The edge does not exists");
 
-  auto edge_it = edges.find(Edge{from, to});
+  auto edge_it = edges.find(Edge{fromId, toId});
   if (edge_it == edges.end())
-    edge_it = edges.find(Edge{to, from});
+    edge_it = edges.find(Edge{toId, fromId});
   if (edge_it == edges.end())
-    throw std::runtime_error("The edge " + *from + " -- " + *to + " does not exists in the edges set");
+    throw std::runtime_error("The edge " + fromId + " -- " + toId + " does not exists in the edges set");
 
   return (*edge_it).weight;
 }
@@ -37,73 +37,71 @@ GraphType UndirectedGraph::getGraphType() const {
   return GraphType::Undirected;
 }
 
-bool UndirectedGraph::isVertex(const VertexSharedPtr &v) const {
-  return adjacency.find(v) != adjacency.end();
+bool UndirectedGraph::isVertex(const idT &id) const {
+  return adjacency.find(id) != adjacency.end();
 }
 
-bool UndirectedGraph::isEdge(const VertexSharedPtr &from, const VertexSharedPtr &to) const {
-  return isVertex(from) && isVertex(to) &&
-         adjacency.at(from).find(to) != adjacency.at(from).end() &&
-         (edges.find({from, to}) != edges.end() || edges.find({to, from}) != edges.end());
+bool UndirectedGraph::isEdge(const idT &fromId, const idT &toId) const {
+  return isVertex(fromId) && isVertex(toId) &&
+         adjacency.at(fromId).find(toId) != adjacency.at(fromId).end() &&
+         (edges.find({fromId, toId}) != edges.end() || edges.find({toId, fromId}) != edges.end());
 }
 
 void UndirectedGraph::addVertex(const VertexSharedPtr &v) {
-  if (isVertex(v))
+  if (isVertex(v->getId()))
     throw std::runtime_error("Vertex Already added");
 
-  adjacency[v] = std::unordered_set<VertexSharedPtr>();
-  vertices.insert(v);
+  adjacency[v->getId()] = std::unordered_set<idT>();
+  vertices.insert({v->getId(), v});
 }
 
-void UndirectedGraph::removeVertex(const VertexSharedPtr &v) {
-  if (!isVertex(v))
+void UndirectedGraph::removeVertex(const idT &id) {
+  if (!isVertex(id))
     throw std::runtime_error("Vertex not in the graph");
   
-  auto adjacentToV = adjacency[v];
+  auto adjacentToV = adjacency[id];
   for (const auto &ver : adjacentToV) {
-    removeEdge(v, ver);
+    removeEdge(id, ver);
   }
-  adjacency.erase(v);
-  vertices.erase(v);
+  adjacency.erase(id);
+  vertices.erase(id);
 }
 
-void UndirectedGraph::addEdge(const VertexSharedPtr &from, const VertexSharedPtr &to, const int &weight) {
-  if (!isVertex(from))
+void UndirectedGraph::addEdge(const idT &fromId, const idT &toId, int weight) {
+  if (!isVertex(fromId))
     throw std::runtime_error("from is not in the graph");
-  if (!isVertex(to))
+  if (!isVertex(toId))
     throw std::runtime_error("to is not in the graph");
-  if (isEdge(from, to))
+  if (isEdge(fromId, toId))
     throw std::runtime_error("The edge already exists");
 
-  adjacency.at(from).insert(to);
-  adjacency.at(to).insert(from);
-  edges.insert(Edge{from, to, weight});
+  adjacency.at(fromId).insert(toId);
+  adjacency.at(toId).insert(fromId);
+  edges.insert(Edge{fromId, toId, weight});
 }
 
-void UndirectedGraph::removeEdge(const VertexSharedPtr &from, const VertexSharedPtr &to) {
-  if (!isVertex(from))
+void UndirectedGraph::removeEdge(const idT &fromId, const idT &toId) {
+  if (!isVertex(fromId))
     throw std::runtime_error("from is not in the graph");
-  if (!isVertex(to))
+  if (!isVertex(toId))
     throw std::runtime_error("to is not in the graph");
-  if (!isEdge(from, to))
+  if (!isEdge(fromId, toId))
     throw std::runtime_error("The edge does not exist");
 
-  adjacency[from].erase(to);
-  adjacency[to].erase(from);
-  auto edge_it = edges.find(Edge{from, to});
+  adjacency[fromId].erase(toId);
+  adjacency[toId].erase(fromId);
+  auto edge_it = edges.find(Edge{fromId, toId});
   if (edge_it == edges.end())
-    edge_it = edges.find(Edge{to, from});
+    edge_it = edges.find(Edge{toId, fromId});
   if (edge_it == edges.end())
-    throw std::runtime_error("The edge " + *from + " -- " + *to + " does not exists in the edges set");
+    throw std::runtime_error("The edge " + fromId + " -- " + toId + " does not exists in the edges set");
   edges.erase(edge_it);
 }
 
-VertexSharedPtr &UndirectedGraph::getVertex(const VertexSharedPtr &v) const {
-  auto it = vertices.find(v);
-  if (it == vertices.end()) {
-    throw std::runtime_error("Vertex not found");
-  }
-  return const_cast<VertexSharedPtr&>(*it);
+const VertexSharedPtr &UndirectedGraph::getVertex(const idT &id) const {
+  if (!isVertex(id))
+    throw std::runtime_error("Vertex not in the graph");
+  return vertices.at(id);
 }
 
 int UndirectedGraph::getNrOfVertices() const {
@@ -123,19 +121,19 @@ void UndirectedGraph::clear() {
   vertices.clear();
 }
 
-std::unordered_set<VertexSharedPtr>::const_iterator UndirectedGraph::begin() const {
+std::unordered_map<idT, VertexSharedPtr>::const_iterator UndirectedGraph::begin() const {
   return vertices.begin();
 }
 
-std::unordered_set<VertexSharedPtr>::const_iterator UndirectedGraph::end() const {
+std::unordered_map<idT, VertexSharedPtr>::const_iterator UndirectedGraph::end() const {
   return vertices.end();
 }
 
 
-AdjacentEdgesView UndirectedGraph::getAdjacentEdges(const VertexSharedPtr &v) const {
-  if (!isVertex(v))
+AdjacentEdgesView UndirectedGraph::getAdjacentEdges(const idT &id) const {
+  if (!isVertex(id))
     throw std::runtime_error("Vertex is not in the graph");
-  return AdjacentEdgesView(*this, v);
+  return AdjacentEdgesView(*this, id);
 }
 
 } //namespace graph

@@ -1,6 +1,7 @@
 #pragma once
 #include "../abstract/Graph.hpp"
 #include <unordered_map>
+#include <unordered_set>
 
 namespace graph {
 
@@ -10,27 +11,30 @@ class AdjacentEdgesView;
 
 class UndirectedGraph : public Graph {
 private:
-  std::unordered_map<VertexSharedPtr, std::unordered_set<VertexSharedPtr>> adjacency;
-  std::unordered_set<VertexSharedPtr> vertices;
+  std::unordered_map<idT, std::unordered_set<idT>> adjacency;
+  std::unordered_map<idT, VertexSharedPtr> vertices;
   std::unordered_set<Edge, EdgeHash> edges;
   friend class AdjacentEdgesView;
 
 public:
   GraphType getGraphType() const override;
-  bool isVertex(const VertexSharedPtr &v) const override;
-  bool isEdge(const VertexSharedPtr &from, const VertexSharedPtr &to) const override;
+
+  bool isVertex(const idT &id) const override;
   void addVertex(const VertexSharedPtr &v) override;
-  void removeVertex(const VertexSharedPtr &v) override;
-  void addEdge(const VertexSharedPtr &from, const VertexSharedPtr &to, const int &weight = 1) override;
-  void removeEdge(const VertexSharedPtr &from, const VertexSharedPtr &to) override;
-  VertexSharedPtr &getVertex(const VertexSharedPtr &v) const override;
+  void removeVertex(const idT &id) override;
+  const VertexSharedPtr &getVertex(const idT &id) const override;
   int getNrOfVertices() const override;
+
+  bool isEdge(const idT &fromId, const idT &toId) const override;
+  void addEdge(const idT &fromId, const idT &toId, int weight = 1) override;
+  void removeEdge(const idT &fromId, const idT &toId) override;
   int getNrOfEdges() const override;
-  int getEdgeWeight(const VertexSharedPtr &from, const VertexSharedPtr &to) const override;
+  int getEdgeWeight(const idT &fromId, const idT &to) const override;
   std::vector<Edge> getEdges() const override;
+
   void clear() override;
-  std::unordered_set<VertexSharedPtr>::const_iterator begin() const override;
-  std::unordered_set<VertexSharedPtr>::const_iterator end() const override;
+  std::unordered_map<idT, VertexSharedPtr>::const_iterator begin() const override;
+  std::unordered_map<idT, VertexSharedPtr>::const_iterator end() const override;
 
   UndirectedGraph() {}
   UndirectedGraph(const UndirectedGraph &other) {
@@ -38,7 +42,7 @@ public:
     this->vertices = other.vertices;
   }
 
-  AdjacentEdgesView getAdjacentEdges(const VertexSharedPtr &v) const;
+  AdjacentEdgesView getAdjacentEdges(const idT &id) const;
 
   UndirectedGraph &operator=(const UndirectedGraph &other) {
     if (this != &other) {
