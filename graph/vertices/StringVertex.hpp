@@ -5,8 +5,11 @@ class StringVertex : public BaseVertex {
 private:
   std::string id;
 public:
-  StringVertex(const std::string &id) : id(id) {}
+  explicit StringVertex(const std::string &id) : id(id) {}
+
   std::string getId() const override {
     return id;
   }
 };
+
+

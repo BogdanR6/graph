@@ -5,6 +5,7 @@
 #include "../graph/algorithms/DirectedGraphAlgorithms.hpp"
 #include "ActivityGraph.hpp"
 #include "Graph.hpp"
+#include "StringVertex.hpp"
 #include "UndirectedGraph.hpp"
 #include <stdexcept>
 #include <string>
@@ -13,32 +14,32 @@
 #include <algorithm>
 
 
-void GraphService::addVertex(const vertex_t& vertexId) {
+void GraphService::addVertex(const BaseVertex& vertexId) {
   graph->addVertex(vertexId);
 }
 
 
-void GraphService::removeVertex(const vertex_t &vertexId) {
+void GraphService::removeVertex(const BaseVertex &vertexId) {
   graph->removeVertex(vertexId);
 }
 
 
-bool GraphService::isVertex(const vertex_t &vertexId) {
+bool GraphService::isVertex(const BaseVertex &vertexId) {
   return graph->isVertex(vertexId);
 }
   
 
-void GraphService::addEdge(const vertex_t &fromVertexId, const vertex_t &toVertexId, const int &weight) {
+void GraphService::addEdge(const BaseVertex &fromVertexId, const BaseVertex &toVertexId, const int &weight) {
   graph->addEdge(fromVertexId, toVertexId, weight);
 }
 
 
-void GraphService::removeEdge(const vertex_t &fromVertexId, const vertex_t &toVertexId) {
+void GraphService::removeEdge(const BaseVertex &fromVertexId, const BaseVertex &toVertexId) {
   graph->removeEdge(fromVertexId, toVertexId);
 }
 
 
-bool GraphService::isEdge(const vertex_t &fromVertexId, const vertex_t &toVertexId) {
+bool GraphService::isEdge(const BaseVertex &fromVertexId, const BaseVertex &toVertexId) {
   return graph->isEdge(fromVertexId, toVertexId);
 }
 
@@ -52,12 +53,12 @@ std::string GraphService::getVertices() {
 }
 
 
-std::string GraphService::getAdjacentEdges(const vertex_t &vertexId) const {
+std::string GraphService::getAdjacentEdges(const BaseVertex &vertexId) const {
   // TODO: add support for all types of graphs 
   if (graph->getGraphType() != graph::GraphType::Undirected)
     throw InvalidOperationOnGraphType("Adjacent Vertices are available only for Undirected graphs");
   std::string vertices = "The adjacent vertices of " + vertexId + " are:\n";
-  auto *undirected = dynamic_cast<graph::UndirectedGraph<vertex_t>*>(graph.get());
+  auto *undirected = dynamic_cast<graph::UndirectedGraph<BaseVertex>*>(graph.get());
   int count = 0;
   for (const auto& [_, vertex, __] : undirected->getAdjacentEdges(vertexId)) {
     vertices += vertex + " ";
@@ -70,11 +71,11 @@ std::string GraphService::getAdjacentEdges(const vertex_t &vertexId) const {
 }
 
 
-std::string GraphService::getOutboundEdges(const vertex_t &vertexId) const {
+std::string GraphService::getOutboundEdges(const BaseVertex &vertexId) const {
   if (graph->getGraphType() != graph::GraphType::Directed)
     throw InvalidOperationOnGraphType("Outbound Vertices are defined only for Directed graphs");
   std::string vertices = "The outbound vertices of " + vertexId + " are:\n";
-  auto *directed = dynamic_cast<graph::DirectedGraph<vertex_t>*>(graph.get());
+  auto *directed = dynamic_cast<graph::DirectedGraph<BaseVertex>*>(graph.get());
   int count = 0;
   for (const auto& [_, vertex, __] : directed->initOutboundEdgesIt(vertexId)) {
     vertices += vertex + " ";
@@ -87,11 +88,11 @@ std::string GraphService::getOutboundEdges(const vertex_t &vertexId) const {
 }
 
 
-std::string GraphService::getInboundEdges(const vertex_t &vertexId) const {
+std::string GraphService::getInboundEdges(const BaseVertex &vertexId) const {
   if (graph->getGraphType() != graph::GraphType::Directed)
     throw InvalidOperationOnGraphType("Inbound Vertices are defined only for Directed graphs");
   std::string vertices = "The inbound vertices of " + vertexId + " are:\n";
-  auto *directed = dynamic_cast<graph::DirectedGraph<vertex_t>*>(graph.get());
+  auto *directed = dynamic_cast<graph::DirectedGraph<BaseVertex>*>(graph.get());
   int count = 0;
   for (const auto& [vertex, _, __] : directed->initInboundEdgesIt(vertexId)) {
     vertices += vertex + " "; 
@@ -121,9 +122,9 @@ std::string GraphService::loadGraph(const std::string &path, const std::string &
   if (!fin.is_open())
     throw std::runtime_error("Could not open file '" + path + "' for reading");
   if (graphType == "undirected")
-    graph = std::make_shared<graph::UndirectedGraph<std::string>>();
+    graph = std::make_shared<graph::UndirectedGraph<StringVertex>>();
   else if (graphType == "directed") 
-    graph = std::make_shared<graph::DirectedGraph<std::string>>();
+    graph = std::make_shared<graph::DirectedGraph<StringVertex>>();
   else 
     throw std::runtime_error("'" + graphType + "' is not a valid graph type");
   graph->clear();
@@ -222,7 +223,7 @@ void GraphService::saveGraph(const std::string& path) const {
     throw std::runtime_error("Could not open file '" + path + "' for writing");
 
   if (graph->getGraphType() == graph::GraphType::Directed) {
-    auto *directed = dynamic_cast<graph::DirectedGraph<vertex_t>*>(graph.get());
+    auto *directed = dynamic_cast<graph::DirectedGraph<BaseVertex>*>(graph.get());
     for (const auto &from : *directed) {
       for (const auto &[_, to, cost] : directed->initOutboundEdgesIt(from))
           fout << from << " " << to << " " << cost << "\n";
@@ -238,7 +239,7 @@ void GraphService::saveGraph(const std::string& path) const {
   }
 
   else if (graph->getGraphType() == graph::GraphType::Undirected) {
-    auto *undirected = dynamic_cast<graph::UndirectedGraph<vertex_t>*>(graph.get());
+    auto *undirected = dynamic_cast<graph::UndirectedGraph<BaseVertex>*>(graph.get());
     for (const auto &vertex : *undirected) {
       auto adjacentEdges = undirected->getAdjacentEdges(vertex);
       if (adjacentEdges.empty())
@@ -252,18 +253,18 @@ void GraphService::saveGraph(const std::string& path) const {
 }
 
 
-std::vector<graph::UndirectedGraph<vertex_t>> GraphService::getConnectedComponentsOfUnorderedGraph() const {
+std::vector<graph::UndirectedGraph<BaseVertex>> GraphService::getConnectedComponentsOfUnorderedGraph() const {
   if (graph->getGraphType() != graph::GraphType::Undirected)
     throw std::runtime_error("getConnectedComponentsOfUndirectedGraph is only available for undirected graphs");
-  auto undirected = dynamic_cast<graph::UndirectedGraph<vertex_t>*>(graph.get());
+  auto undirected = dynamic_cast<graph::UndirectedGraph<BaseVertex>*>(graph.get());
   return graph::algorithms::getConnectedComponentsDFS(*undirected);
 }
 
 
-std::pair<std::vector<vertex_t>, int> GraphService::getLowestCostWalk(const vertex_t &start, const vertex_t &end) const {
+std::pair<std::vector<BaseVertex>, int> GraphService::getLowestCostWalk(const BaseVertex &start, const BaseVertex &end) const {
   if (graph->getGraphType() != graph::GraphType::Directed)
     throw std::runtime_error("getLowestCostWalk is only available for directed graphs");
-  auto directed = dynamic_cast<graph::DirectedGraph<vertex_t>*>(graph.get());
+  auto directed = dynamic_cast<graph::DirectedGraph<BaseVertex>*>(graph.get());
   return graph::algorithms::getLowestCostWalk(*directed, start, end);
 }
 
@@ -271,6 +272,6 @@ std::pair<std::vector<vertex_t>, int> GraphService::getLowestCostWalk(const vert
 std::vector<std::string> GraphService::topologicalSort() const {
   if (graph->getGraphType() != graph::GraphType::Directed) 
     throw std::runtime_error("topologicalSort is only available for directed graphs");
-  auto directed = dynamic_cast<graph::DirectedGraph<vertex_t>*>(graph.get());
+  auto directed = dynamic_cast<graph::DirectedGraph<BaseVertex>*>(graph.get());
   return graph::algorithms::getTopologicalOrder(*directed);
 }

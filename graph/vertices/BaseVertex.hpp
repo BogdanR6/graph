@@ -1,8 +1,24 @@
 #pragma once
 #include <string>
 
+using idT = std::string;
+
 class BaseVertex {
 public:
-  virtual std::string getId() const = 0;
+  virtual idT getId() const = 0;
+  virtual std::string operator+(const BaseVertex &other) const = 0;
   virtual ~BaseVertex() = default;
 };
+
+inline std::string operator+(const std::string &lhs, const BaseVertex &rhs) {
+    return lhs + rhs.getId();
+}
+
+inline std::string operator+(const BaseVertex &lhs, const std::string &rhs) {
+    return lhs.getId() + rhs;
+}
+
+inline std::ostream &operator<<(std::ostream &os, const BaseVertex &vertex) {
+    os << vertex.getId();
+    return os;
+}
