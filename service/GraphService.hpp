@@ -11,17 +11,17 @@ public:
   GraphService(std::unique_ptr<graph::Graph> graph) : graph(std::move(graph)) {}
   GraphService() : GraphService(std::make_unique<graph::UndirectedGraph>()) {}
 
-  void addVertex(const BaseVertex &vertexId);
-  void removeVertex(const BaseVertex &vertexId);
-  bool isVertex(const BaseVertex &vertexId);
+  void addVertex(const BaseVertex &vertex);
+  void removeVertex(const idT &vertexId);
+  bool isVertex(const idT &vertexId);
     
-  void addEdge(const BaseVertex &fromVertexId, const BaseVertex &toVertexId, const int &weight);
-  void removeEdge(const BaseVertex &fromVertexId, const BaseVertex &toVertexId);
-  bool isEdge(const BaseVertex &fromVertexId, const BaseVertex &toVertexId);
+  void addEdge(const idT &fromVertexId, const idT &toVertexId, int weight = 1);
+  void removeEdge(const idT &fromVertexId, const idT &toVertexId);
+  bool isEdge(const idT &fromVertexId, const idT &toVertexId);
 
-  std::string getAdjacentEdges(const BaseVertex &vertexId) const;
-  std::string getOutboundEdges(const BaseVertex &vertexId) const;
-  std::string getInboundEdges(const BaseVertex &vertexId) const;
+  std::string getAdjacentEdges(const idT &vertexId) const;
+  std::string getOutboundEdges(const idT &vertexId) const;
+  std::string getInboundEdges(const idT &vertexId) const;
 
   std::string getVertices();
 
@@ -31,8 +31,8 @@ public:
   void saveGraph(const std::string& path) const;
 
   std::vector<graph::UndirectedGraph> getConnectedComponentsOfUnorderedGraph() const;
-  std::pair<std::vector<BaseVertex>, int> getLowestCostWalk(const BaseVertex &start, const BaseVertex &end) const;
-  std::vector<std::string> topologicalSort() const;
+  std::pair<std::vector<idT>, int> getLowestCostWalk(const BaseVertex &start, const BaseVertex &end) const;
+  std::vector<idT> topologicalSort() const;
 
 private:
   std::shared_ptr<graph::Graph> graph;

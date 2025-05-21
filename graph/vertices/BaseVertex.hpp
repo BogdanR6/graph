@@ -6,7 +6,7 @@ using idT = std::string;
 class BaseVertex {
 public:
   virtual idT getId() const = 0;
-  virtual std::string operator+(const BaseVertex &other) const = 0;
+  //virtual std::string operator+(const BaseVertex &other) const = 0;
   virtual ~BaseVertex() = default;
 };
 
