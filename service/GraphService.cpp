@@ -1,3 +1,4 @@
+#include "../graph/directed_graph/iterators/Iterators.hpp"
 #include "GraphService.hpp"
 #include "../graph/vertices/StringVertex.hpp"
 #include "../errors/InvalidInputError.cpp"
@@ -60,37 +61,27 @@ std::vector<graph::Edge> GraphService::getAdjacentEdges(const graph::idT &vertex
 }
 
 
-std::string GraphService::getOutboundEdges(const graph::idT &vertexId) const {// TODO: change it to return a std::vector<Edge>
+std::vector<graph::Edge> GraphService::getOutboundEdges(const graph::idT &vertexId) const {
   if (graph->getGraphType() != graph::GraphType::Directed)
     throw InvalidOperationOnGraphType("Outbound Vertices are defined only for Directed graphs");
-  std::string vertices = "The outbound vertices of " + vertexId + " are:\n";
   auto *directed = dynamic_cast<graph::DirectedGraph*>(graph.get());
-  int count = 0;
-  for (const auto& [_, vertex, __] : directed->initOutboundEdgesIt(vertexId)) {
-    vertices += vertex + " ";
-    ++count;
+  std::vector<graph::Edge> edges;
+  for (const graph::Edge& edge : directed->initOutboundEdgesIt(vertexId)) {
+    edges.push_back(edge);
   }
-  if (count == 0) {
-    vertices = "The vertex " + vertexId + " has no outbound vertices";
-  }
-  return vertices;
+  return edges;
 }
 
 
-std::string GraphService::getInboundEdges(const graph::idT &vertexId) const { // TODO: change it to return a std::vector<Edge>
+std::vector<graph::Edge> GraphService::getInboundEdges(const graph::idT &vertexId) const { 
   if (graph->getGraphType() != graph::GraphType::Directed)
     throw InvalidOperationOnGraphType("Inbound Vertices are defined only for Directed graphs");
-  std::string vertices = "The inbound vertices of " + vertexId + " are:\n";
   auto *directed = dynamic_cast<graph::DirectedGraph*>(graph.get());
-  int count = 0;
-  for (const auto& [vertex, _, __] : directed->initInboundEdgesIt(vertexId)) {
-    vertices += vertex + " "; 
-    ++count;
+  std::vector<graph::Edge> edges;
+  for (const graph::Edge& edge : directed->initInboundEdgesIt(vertexId)) {
+    edges.push_back(edge);
   }
-  if (count == 0) {
-    vertices = "The vertex " + vertexId + " has no inbound vertices";
-  }
-  return vertices;
+  return edges;
 }
 
 

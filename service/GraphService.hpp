@@ -20,8 +20,8 @@ public:
   bool isEdge(const graph::idT &fromVertexId, const graph::idT &toVertexId);
 
   std::vector<graph::Edge> getAdjacentEdges(const graph::idT &vertexId) const;
-  std::string getOutboundEdges(const graph::idT &vertexId) const;
-  std::string getInboundEdges(const graph::idT &vertexId) const;
+  std::vector<graph::Edge> getOutboundEdges(const graph::idT &vertexId) const;
+  std::vector<graph::Edge> getInboundEdges(const graph::idT &vertexId) const;
 
   std::vector<graph::VertexSharedPtr> getVertices();
 

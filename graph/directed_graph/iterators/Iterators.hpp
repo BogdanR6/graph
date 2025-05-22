@@ -2,6 +2,7 @@
 #include "../DirectedGraph.hpp"
 
 namespace graph {
+
 class OutboundEdgesIterator {
 private:
   const DirectedGraph &graph;
@@ -92,4 +93,5 @@ public:
     return Iterator(graph.inAdjacency.at(vertexId).end(), vertexId, graph);
   }
 };
+
 } // namespace graph
