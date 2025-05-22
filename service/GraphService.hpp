@@ -25,7 +25,7 @@ public:
 
   std::vector<graph::VertexSharedPtr> getVertices();
 
-  std::string getEdges();
+  std::vector<graph::Edge> getEdges();
 
   std::string loadGraph(const std::string &path, const std::string &graphType);
   void saveGraph(const std::string& path) const;

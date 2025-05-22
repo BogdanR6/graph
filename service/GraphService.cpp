@@ -85,16 +85,8 @@ std::vector<graph::Edge> GraphService::getInboundEdges(const graph::idT &vertexI
 }
 
 
-std::string GraphService::getEdges() { // TODO: make it return std::vector<Edge>
-  std::string delimitor = "--";
-  if (graph->getGraphType() == graph::GraphType::Directed)
-    delimitor = "->";
-  std::string output = "The edges in the graph are:\n";
-  for (const auto& [fromId, toId, _] : graph->getEdges()) {
-    output += fromId + delimitor + toId + "\n";
-  }
-  output = output.substr(0, output.length() - 1); // eliminate the last new line
-  return output;
+std::vector<graph::Edge> GraphService::getEdges() {
+  return graph->getEdges();
 }
 
 std::string GraphService::loadGraph(const std::string &path, const std::string &graphType) {
