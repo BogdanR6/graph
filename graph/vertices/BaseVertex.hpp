@@ -10,6 +10,8 @@ public:
   virtual idT getId() const = 0;
   //virtual std::string operator+(const BaseVertex &other) const = 0;
   virtual ~BaseVertex() = default;
+
+  virtual std::string toString() const = 0;
 };
 
 inline std::string operator+(const std::string &lhs, const BaseVertex &rhs) {
