@@ -165,6 +165,22 @@ InboundEdgesIterator DirectedGraph::initInboundEdgesIt(const idT &id) const {
   return InboundEdgesIterator(*this, id);
 }
 
+AdjacentEdgesView DirectedGraph::getAdjacentEdges(const idT &id) const {
+  if (!isVertex(id))
+    throw std::runtime_error("Vertex is not in the graph");
+
+  AdjacentEdgesView view;
+
+  for (const auto &toId : outAdjacency.at(id)) {
+    view.addEdge(Edge{id, toId, getEdgeWeight(id, toId)});
+  }
+  for (const auto &fromId : inAdjacency.at(id)) {
+    view.addEdge(Edge{fromId, id, getEdgeWeight(fromId, id)});
+  }
+
+  return view;
+}
+
 
 // Misc Methods
 

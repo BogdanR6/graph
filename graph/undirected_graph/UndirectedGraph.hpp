@@ -1,5 +1,6 @@
 #pragma once
 #include "../abstract/Graph.hpp"
+#include "../abstract/views/AdjacentEdgesView.hpp"
 #include <unordered_map>
 #include <unordered_set>
 
@@ -7,14 +8,11 @@ namespace graph {
 
 // TODO: Modify the EdgeHash class such that for undirected the direction does not matter
 
-class AdjacentEdgesView;
-
 class UndirectedGraph : public Graph {
 private:
   std::unordered_map<idT, std::unordered_set<idT>> adjacency;
   std::unordered_map<idT, VertexSharedPtr> vertices;
   std::unordered_set<Edge, EdgeHash> edges;
-  friend class AdjacentEdgesView;
 
 public:
   GraphType getGraphType() const override;
@@ -42,7 +40,7 @@ public:
     this->vertices = other.vertices;
   }
 
-  AdjacentEdgesView getAdjacentEdges(const idT &id) const;
+  AdjacentEdgesView getAdjacentEdges(const idT &id) const override;
 
   UndirectedGraph &operator=(const UndirectedGraph &other) {
     if (this != &other) {

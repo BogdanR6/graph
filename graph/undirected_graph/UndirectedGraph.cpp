@@ -1,5 +1,4 @@
 #include "UndirectedGraph.hpp"
-#include "iterators/Iterators.hpp"
 #include <stdexcept>
 
 namespace graph {
@@ -133,7 +132,14 @@ std::unordered_map<idT, VertexSharedPtr>::const_iterator UndirectedGraph::end() 
 AdjacentEdgesView UndirectedGraph::getAdjacentEdges(const idT &id) const {
   if (!isVertex(id))
     throw std::runtime_error("Vertex is not in the graph");
-  return AdjacentEdgesView(*this, id);
+  AdjacentEdgesView view;
+  auto it = adjacency.find(id);
+  if (it != adjacency.end()) {
+      // Populate edges
+      for (const idT& toId : it->second)
+        view.addEdge(Edge{id, toId, getEdgeWeight(id, toId)});
+  }
+  return view;
 }
 
 } //namespace graph

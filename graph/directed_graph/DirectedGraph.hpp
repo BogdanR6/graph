@@ -49,6 +49,7 @@ public:
   OutboundEdgesIterator initOutboundEdgesIt(const idT &id) const;
   InboundEdgesIterator initInboundEdgesIt(const idT &id) const;
 
+  AdjacentEdgesView getAdjacentEdges(const idT &id) const override;
 
   // Misc Methods
   void clear() override;

@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 
+namespace graph {
+
 using idT = std::string;
 
 class BaseVertex {
@@ -21,4 +23,6 @@ inline std::string operator+(const BaseVertex &lhs, const std::string &rhs) {
 inline std::ostream &operator<<(std::ostream &os, const BaseVertex &vertex) {
     os << vertex.getId();
     return os;
+}
+
 }
