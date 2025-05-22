@@ -16,64 +16,51 @@
 #include <algorithm>
 
 
-void GraphService::addVertex(const BaseVertex& vertex) {
-  graph->addVertex(std::make_shared<BaseVertex>(vertex));
+void GraphService::addVertex(const graph::BaseVertex& vertex) {
+  graph->addVertex(std::make_shared<graph::BaseVertex>(vertex));
 }
 
 
-void GraphService::removeVertex(const idT &vertexId) {
+void GraphService::removeVertex(const graph::idT &vertexId) {
   graph->removeVertex(vertexId);
 }
 
 
-bool GraphService::isVertex(const idT &vertexId) {
+bool GraphService::isVertex(const graph::idT &vertexId) {
   return graph->isVertex(vertexId);
 }
   
 
-void GraphService::addEdge(const idT &fromVertexId, const idT &toVertexId, int weight) {
+void GraphService::addEdge(const graph::idT &fromVertexId, const graph::idT &toVertexId, int weight) {
   graph->addEdge(fromVertexId, toVertexId, weight);
 }
 
 
-void GraphService::removeEdge(const idT &fromVertexId, const idT &toVertexId) {
+void GraphService::removeEdge(const graph::idT &fromVertexId, const graph::idT &toVertexId) {
   graph->removeEdge(fromVertexId, toVertexId);
 }
 
 
-bool GraphService::isEdge(const idT &fromVertexId, const idT &toVertexId) {
+bool GraphService::isEdge(const graph::idT &fromVertexId, const graph::idT &toVertexId) {
   return graph->isEdge(fromVertexId, toVertexId);
 }
 
 
-std::string GraphService::getVertices() { // TODO: change it to return a std::vector<idT>
-  std::string vertices = "";
-  for (const auto& [vertexId, _] : *graph) {
-    vertices += vertexId + " ";
+std::vector<graph::VertexSharedPtr> GraphService::getVertices() {
+  std::vector<graph::VertexSharedPtr> vertices;
+  for (const auto& [_, vertexPtr] : *graph) {
+    vertices.push_back(vertexPtr);
   }
   return vertices; 
 }
 
 
-std::string GraphService::getAdjacentEdges(const idT &vertexId) const { // TODO: change it to return a std::vector<Edge>
-  // TODO: add support for all types of graphs 
-  if (graph->getGraphType() != graph::GraphType::Undirected)
-    throw InvalidOperationOnGraphType("Adjacent Vertices are available only for Undirected graphs");
-  std::string vertices = "The adjacent vertices of " + vertexId + " are:\n";
-  auto *undirected = dynamic_cast<graph::UndirectedGraph*>(graph.get());
-  int count = 0;
-  for (const auto& [_, vertex, __] : undirected->getAdjacentEdges(vertexId)) {
-    vertices += vertex + " ";
-    ++count;
-  }
-  if (count == 0) {
-    vertices = "The vertex " + vertexId + " has no adjacent vertices";
-  }
-  return vertices; 
+std::vector<graph::Edge> GraphService::getAdjacentEdges(const graph::idT &vertexId) const {
+  return graph->getAdjacentEdges(vertexId).getAll();
 }
 
 
-std::string GraphService::getOutboundEdges(const idT &vertexId) const {// TODO: change it to return a std::vector<Edge>
+std::string GraphService::getOutboundEdges(const graph::idT &vertexId) const {// TODO: change it to return a std::vector<Edge>
   if (graph->getGraphType() != graph::GraphType::Directed)
     throw InvalidOperationOnGraphType("Outbound Vertices are defined only for Directed graphs");
   std::string vertices = "The outbound vertices of " + vertexId + " are:\n";
@@ -90,7 +77,7 @@ std::string GraphService::getOutboundEdges(const idT &vertexId) const {// TODO: 
 }
 
 
-std::string GraphService::getInboundEdges(const idT &vertexId) const { // TODO: change it to return a std::vector<Edge>
+std::string GraphService::getInboundEdges(const graph::idT &vertexId) const { // TODO: change it to return a std::vector<Edge>
   if (graph->getGraphType() != graph::GraphType::Directed)
     throw InvalidOperationOnGraphType("Inbound Vertices are defined only for Directed graphs");
   std::string vertices = "The inbound vertices of " + vertexId + " are:\n";
@@ -163,8 +150,8 @@ std::string GraphService::loadGraph(const std::string &path, const std::string &
       if (tokens.size() != 3)
         throw std::runtime_error("Expected format 'from to cost' on line " + std::to_string(i + 2));
 
-      idT fromId = tokens[0];
-      idT toId = tokens[1];
+      graph::idT fromId = tokens[0];
+      graph::idT toId = tokens[1];
       int cost = std::stoi(tokens[2]);
 
       try {
@@ -185,15 +172,15 @@ std::string GraphService::loadGraph(const std::string &path, const std::string &
 
       if (tokens.size() == 1) {
         // Single vertex: isolated vertex
-        idT vertexId = tokens[0];
+        graph::idT vertexId = tokens[0];
         try {
         graph->addVertex(std::make_shared<StringVertex>(vertexId));
         } catch (...) {} // ignore if already exists
       } 
       else if (tokens.size() == 2 || tokens.size() == 3) {
         // Edge: from to [cost]
-        idT fromId = tokens[0];
-        idT toId = tokens[1];
+        graph::idT fromId = tokens[0];
+        graph::idT toId = tokens[1];
         int cost = 1;
         if (tokens.size() == 3)
           cost = std::stoi(tokens[2]);
@@ -263,7 +250,7 @@ std::vector<graph::UndirectedGraph> GraphService::getConnectedComponentsOfUnorde
 }
 
 
-std::pair<std::vector<idT>, int> GraphService::getLowestCostWalk(const BaseVertex &start, const BaseVertex &end) const {
+std::pair<std::vector<graph::idT>, int> GraphService::getLowestCostWalk(const graph::BaseVertex &start, const graph::BaseVertex &end) const {
   if (graph->getGraphType() != graph::GraphType::Directed)
     throw std::runtime_error("getLowestCostWalk is only available for directed graphs");
   auto directed = dynamic_cast<graph::DirectedGraph*>(graph.get());
@@ -271,7 +258,7 @@ std::pair<std::vector<idT>, int> GraphService::getLowestCostWalk(const BaseVerte
 }
 
 
-std::vector<idT> GraphService::topologicalSort() const {
+std::vector<graph::idT> GraphService::topologicalSort() const {
   if (graph->getGraphType() != graph::GraphType::Directed) 
     throw std::runtime_error("topologicalSort is only available for directed graphs");
   auto directed = dynamic_cast<graph::DirectedGraph*>(graph.get());
