@@ -1,13 +1,13 @@
-#include "../DirectedGraph.hpp"
+#include "../directed_graph/DirectedGraph.hpp"
 
 namespace graph {
 namespace algorithms {
 
-int lowestLengthFBfs(graph::DirectedGraph<std::string> &g, std::string start, std::string end); 
+int lowestLengthFBfs(graph::DirectedGraph &g, const idT &startId, const idT &endId); 
 
-int lowestLengthBBfs(graph::DirectedGraph<int> &g, std::string start, std::string end);
+int lowestLengthBBfs(graph::DirectedGraph &g, const idT &startId, const idT &endId);
 
-std::pair<std::vector<std::string>, int> getLowestCostWalk(const graph::DirectedGraph<std::string> &g, const std::string &start, const std::string &end);
-std::vector<std::string> getTopologicalOrder(const graph::DirectedGraph<std::string> &g);
+std::pair<std::vector<idT>, int> getLowestCostWalk(const graph::DirectedGraph &g, const idT &startId, const idT &endId);
+std::vector<idT> getTopologicalOrder(const graph::DirectedGraph &g);
 }
 }

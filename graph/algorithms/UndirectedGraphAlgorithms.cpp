@@ -1,4 +1,4 @@
-#include "../UndirectedGraph.hpp"
+#include "../undirected_graph/UndirectedGraph.hpp"
 #include "UndirectedGraphAlgorithms.hpp"
 #include <vector>
 #include <stack>
@@ -8,31 +8,30 @@ namespace algorithms {
 
 // 2.3. Write a program that finds the connected components of an undirected graph
 // using a depth-first traversal of the graph.
-std::vector<graph::UndirectedGraph<std::string>>
-getConnectedComponentsDFS(const graph::UndirectedGraph<std::string> &g) {
-  std::vector<graph::UndirectedGraph<std::string>> components;
+std::vector<graph::UndirectedGraph> getConnectedComponentsDFS(const graph::UndirectedGraph &g) {
+  std::vector<graph::UndirectedGraph> components;
 
   std::unordered_map<std::string, bool> visited;
 
-  for (const auto &v : g) {
-    if (visited[v])
+  for (const auto &[vertexId, vertex] : g) {
+    if (visited[vertexId])
       continue;
 
     std::stack<std::string> stk;
-    stk.push(v);
-    components.push_back(graph::UndirectedGraph<std::string>());
-    components.back().addVertex(v);
-    visited[v] = true;
+    stk.push(vertexId);
+    components.push_back(graph::UndirectedGraph());
+    components.back().addVertex(vertex);
+    visited[vertexId] = true;
     while (!stk.empty()) {
-      std::string top = stk.top();
+      std::string currentVertexId = stk.top();
       stk.pop();
-      for (const auto &[_, adj, __] : g.getAdjacentEdges(top)) {
-        if (!visited[adj]) {
-          stk.push(adj);
-          visited[adj] = true;
-          if (!components.back().isVertex(adj))
-            components.back().addVertex(adj);
-          components.back().addEdge(top, adj);
+      for (const auto &[_, adjId, __] : g.getAdjacentEdges(currentVertexId)) {
+        if (!visited[adjId]) {
+          stk.push(adjId);
+          visited[adjId] = true;
+          if (!components.back().isVertex(adjId))
+            components.back().addVertex(g.getVertex(adjId));
+          components.back().addEdge(currentVertexId, adjId);
         }
       }
     }

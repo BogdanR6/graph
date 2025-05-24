@@ -1,5 +1,6 @@
 #include "DirectedGraphAlgorithms.hpp"
-#include "../DirectedGraph.hpp"
+#include "../directed_graph/DirectedGraph.hpp"
+#include "../directed_graph/iterators/Iterators.hpp"
 #include <algorithm>
 #include <queue>
 #include <limits>
@@ -10,27 +11,28 @@
 
 namespace graph {
 namespace algorithms {
-int lowestLengthFBfs(graph::DirectedGraph<std::string> &g, std::string start, std::string end) {
-  std::unordered_map<std::string, bool> visited;
-  std::unordered_map<std::string, int> distance; // Stores the shortest distance from start to each node
-  std::queue<std::string> q;
 
-  distance[start] = 0;
-  visited[start] = true;
-  q.push(start);
+int lowestLengthFBfs(graph::DirectedGraph &g, const idT &startId, const idT &endId) {
+  std::unordered_map<idT, bool> visited;
+  std::unordered_map<idT, int> distance; // Stores the shortest distance from start to each node
+  std::queue<idT> q;
+
+  distance[startId] = 0;
+  visited[startId] = true;
+  q.push(startId);
   while (!q.empty()) {
-    std::string t = q.front();
+    const idT currentVertexId = q.front();
     q.pop();
 
-    for (const auto &[_, to, __] : g.initOutboundEdgesIt(t)) {
+    for (const auto &[_, toId, __] : g.initOutboundEdgesIt(currentVertexId)) {
       // If we have reached the end node, return the distance
-      if (to == end)
-        return distance[t] + 1;
+      if (toId == endId)
+        return distance[currentVertexId] + 1;
 
-      if (!visited[to]) {
-        visited[to] = true;
-        distance[to] = distance[t] + 1;
-        q.push(to);
+      if (!visited[toId]) {
+        visited[toId] = true;
+        distance[toId] = distance[currentVertexId] + 1;
+        q.push(toId);
       }
     }
   }
@@ -38,27 +40,27 @@ int lowestLengthFBfs(graph::DirectedGraph<std::string> &g, std::string start, st
   return 999; // inf
 }
 
-int lowestLengthBBfs(graph::DirectedGraph<std::string> &g, std::string start, std::string end) {
-  std::unordered_map<std::string, bool> visited;
-  std::unordered_map<std::string, int> distance; // Stores the shortest distance from start to each node
-  std::queue<std::string> q;
+int lowestLengthBBfs(graph::DirectedGraph &g, const idT &startId, const idT &endId) {
+  std::unordered_map<idT, bool> visited;
+  std::unordered_map<idT, int> distance; // Stores the shortest distance from start to each node
+  std::queue<idT> q;
 
-  distance[end] = 0;
-  visited[end] = true;
-  q.push(end);
+  distance[endId] = 0;
+  visited[endId] = true;
+  q.push(endId);
   while (!q.empty()) {
-    std::string t = q.front();
+    const idT currentVertex = q.front();
     q.pop();
 
-    for (const auto &[_, to, __] : g.initInboundEdgesIt(t)) {
+    for (const auto &[_, toId, __] : g.initInboundEdgesIt(currentVertex)) {
       // If we have reached the end node, return the distance
-      if (to == start)
-        return distance[t] + 1;
+      if (toId == startId)
+        return distance[currentVertex] + 1;
 
-      if (!visited[to]) {
-        visited[to] = true;
-        distance[to] = distance[t] + 1;
-        q.push(to);
+      if (!visited[toId]) {
+        visited[toId] = true;
+        distance[toId] = distance[currentVertex] + 1;
+        q.push(toId);
       }
     }
   }
@@ -74,19 +76,19 @@ const int INF = std::numeric_limits<int>::max() / 2; // Avoid overflow in additi
 struct WalkResult {
   std::vector<std::vector<int>> dist; // Cost of the shortest path from vertex i to vertex j
   std::vector<std::vector<int>> pred; // Predecessor of vertex j on the shortest path from i
-  std::unordered_map<std::string, int> index;
-  std::vector<std::string> reverseIndex;
+  std::unordered_map<idT, int> index;
+  std::vector<idT> reverseIndex;
 };
 
-WalkResult findLowestCostWalk(const graph::DirectedGraph<std::string> &g) {
+WalkResult findLowestCostWalk(const graph::DirectedGraph &g) {
   const int INF = std::numeric_limits<int>::max() / 2;
 
   std::unordered_map<std::string, int> index;
   std::vector<std::string> reverseIndex;
   int i = 0;
-  for (const auto &v : g) {
-    index[v] = i++;
-    reverseIndex.push_back(v);
+  for (const auto &[vertexId, _] : g) {
+    index[vertexId] = i++;
+    reverseIndex.push_back(vertexId);
   }
 
   int n = g.getNrOfVertices();
@@ -94,15 +96,15 @@ WalkResult findLowestCostWalk(const graph::DirectedGraph<std::string> &g) {
   std::vector<std::vector<int>> pred(n, std::vector<int>(n, -1));
 
   // Initialize cost and predecessor matrices
-  for (const auto &v : g) {
-    dist[index[v]][index[v]] = 0;
-    pred[index[v]][index[v]] = index[v];
-    for (const auto &[_, to, __] : g.initOutboundEdgesIt(v)) {
-      int u = index[v];
-      int v_ = index[to];
-      dist[u][v_] = g.getEdgeWeight(v, to);
+  for (const auto &[vertexId, _] : g) {
+    dist[index[vertexId]][index[vertexId]] = 0;
+    pred[index[vertexId]][index[vertexId]] = index[vertexId];
+    for (const auto &[fromId, toId, __] : g.initOutboundEdgesIt(vertexId)) {
+      int fromIndex = index[fromId];
+      int toIndex = index[toId];
+      dist[fromIndex][toIndex] = g.getEdgeWeight(fromId, toId);
 
-      pred[u][v_] = u;
+      pred[fromIndex][toIndex] = fromIndex;
     }
   }
 
@@ -127,29 +129,30 @@ WalkResult findLowestCostWalk(const graph::DirectedGraph<std::string> &g) {
   return {dist, pred, index, reverseIndex};
 }
 
-std::pair<std::vector<std::string>, int> reconstructWalk(const WalkResult &result, const std::string &start, const std::string &end) {
-  int s = result.index.at(start);
-  int t = result.index.at(end);
-  if (result.dist[s][t] == std::numeric_limits<int>::max() / 2)
+std::pair<std::vector<idT>, int> reconstructWalk(const WalkResult &result, const idT &startId, const idT &endId) {
+  int startIndex = result.index.at(startId);
+  int endIndex = result.index.at(endId);
+  if (result.dist[startIndex][endIndex] == std::numeric_limits<int>::max() / 2)
     return {}; // No path
 
   std::vector<int> pathIndices;
-  for (int at = t; at != s; at = result.pred[s][at]) {
-    if (at == -1)
+  for (int currIndex = endIndex; currIndex != startIndex; currIndex = result.pred[startIndex][currIndex]) {
+    if (currIndex == -1)
       return {}; // No path
-    pathIndices.push_back(at);
+    pathIndices.push_back(currIndex);
   }
-  pathIndices.push_back(s);
+  pathIndices.push_back(startIndex);
   std::reverse(pathIndices.begin(), pathIndices.end());
 
   std::vector<std::string> path;
   for (int idx : pathIndices)
     path.push_back(result.reverseIndex[idx]);
-  return std::make_pair(path, result.dist[s][t]);
+  return std::make_pair(path, result.dist[startIndex][endIndex]);
 }
-std::pair<std::vector<std::string>, int> getLowestCostWalk(const graph::DirectedGraph<std::string> &g, const std::string &start, const std::string &end) {
+
+std::pair<std::vector<idT>, int> getLowestCostWalk(const graph::DirectedGraph &g, const idT &startId, const idT &endId) {
   auto result = findLowestCostWalk(g);
-  return reconstructWalk(result, start, end);
+  return reconstructWalk(result, startId, endId);
 }
 
 /*
@@ -160,35 +163,39 @@ std::pair<std::vector<std::string>, int> getLowestCostWalk(const graph::Directed
 *   prints the critical activities. 
 */
 struct ActivitiesData {
-  std::unordered_map<std::string, int> erliestStart;
-  std::unordered_map<std::string, int> latestStart;
-  std::vector<std::string> topologicalOrder;
+  std::unordered_map<idT, int> erliestStart;
+  std::unordered_map<idT, int> latestStart;
+  std::vector<idT> topologicalOrder;
 };
 
-std::vector<std::string> getTopologicalOrder(const graph::DirectedGraph<std::string> &g) {
+std::vector<idT> getTopologicalOrder(const graph::DirectedGraph &g) {
   // Kahn's algorithm
-  graph::DirectedGraph<std::string> aux = g;
-  std::vector<std::string> sortedVertices;
-  std::stack<std::string> startingVertices;
-  for (const auto &v : aux) {
-    if (aux.initInboundEdgesIt(v).begin() == aux.initInboundEdgesIt(v).end()) { // no inbound edges
-      startingVertices.push(v);
+  graph::DirectedGraph aux = g;
+  std::vector<idT> sortedVertices;
+  std::stack<idT> startingVertices;
+  for (const auto &[vertexId, _] : aux) {
+    if (aux.initInboundEdgesIt(vertexId).begin() == aux.initInboundEdgesIt(vertexId).end()) { // no inbound edges
+      startingVertices.push(vertexId);
     }
   }
+
   if (startingVertices.empty())
     return {}; // cycle or empty
+
   while (!startingVertices.empty()) {
-    auto from = startingVertices.top(); startingVertices.pop();
-    sortedVertices.push_back(from);
-    for (const auto &to : aux.getAllOutboundVertices(from)) {
-      aux.removeEdge(from, to);
-      if (aux.initInboundEdgesIt(to).begin() == aux.initInboundEdgesIt(to).end()) { // no inbound edges
-        startingVertices.push(to);
+    auto fromId = startingVertices.top(); startingVertices.pop();
+    sortedVertices.push_back(fromId);
+    for (const auto &toId : aux.getAllOutboundVertices(fromId)) {
+      aux.removeEdge(fromId, toId);
+      if (aux.initInboundEdgesIt(toId).begin() == aux.initInboundEdgesIt(toId).end()) { // no inbound edges
+        startingVertices.push(toId);
       }
     }
   }
+
   if (aux.getNrOfEdges() != 0)
     return {}; // cycle
+
   return sortedVertices;
 }
 
