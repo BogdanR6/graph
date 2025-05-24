@@ -5,10 +5,10 @@
 #include "../graph/directed_graph/DirectedGraph.hpp"
 #include "../graph/algorithms/UndirectedGraphAlgorithms.hpp"
 #include "../graph/algorithms/DirectedGraphAlgorithms.hpp"
-#include "ActivityGraph.hpp"
-#include "Graph.hpp"
-#include "StringVertex.hpp"
-#include "UndirectedGraph.hpp"
+#include "../graph/special/ActivityGraph.hpp"
+#include "../graph/abstract/Graph.hpp"
+#include "../graph/vertices/StringVertex.hpp"
+#include "../graph/undirected_graph/UndirectedGraph.hpp"
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -89,7 +89,7 @@ std::vector<graph::Edge> GraphService::getEdges() {
   return graph->getEdges();
 }
 
-std::string GraphService::loadGraph(const std::string &path, const std::string &graphType) {
+void GraphService::loadGraph(const std::string &path, const std::string &graphType) {
   std::ifstream fin(path);
   if (!fin.is_open())
     throw std::runtime_error("Could not open file '" + path + "' for reading");
@@ -122,7 +122,7 @@ std::string GraphService::loadGraph(const std::string &path, const std::string &
     // Format 1: vertex_count edge_count
     int vertexCount = std::stoi(firstLine[0]);
     for (int i = 0; i < vertexCount; ++i)
-        graph->addVertex(std::make_shared<StringVertex>(std::to_string(i)));
+        graph->addVertex(std::make_shared<graph::StringVertex>(std::to_string(i)));
       
     int edgeCount = std::stoi(firstLine[1]);
 
@@ -138,10 +138,10 @@ std::string GraphService::loadGraph(const std::string &path, const std::string &
       int cost = std::stoi(tokens[2]);
 
       try {
-        graph->addVertex(std::make_shared<StringVertex>(fromId));
+        graph->addVertex(std::make_shared<graph::StringVertex>(fromId));
       } catch (...){} // ignore if already exists
       try {
-        graph->addVertex(std::make_shared<StringVertex>(toId));
+        graph->addVertex(std::make_shared<graph::StringVertex>(toId));
       } catch (...){} // ignore if already exists
       try {
         graph->addEdge(fromId, toId, cost);
@@ -157,7 +157,7 @@ std::string GraphService::loadGraph(const std::string &path, const std::string &
         // Single vertex: isolated vertex
         graph::idT vertexId = tokens[0];
         try {
-        graph->addVertex(std::make_shared<StringVertex>(vertexId));
+        graph->addVertex(std::make_shared<graph::StringVertex>(vertexId));
         } catch (...) {} // ignore if already exists
       } 
       else if (tokens.size() == 2 || tokens.size() == 3) {
@@ -169,10 +169,10 @@ std::string GraphService::loadGraph(const std::string &path, const std::string &
           cost = std::stoi(tokens[2]);
 
         try {
-            graph->addVertex(std::make_shared<StringVertex>(fromId));
+            graph->addVertex(std::make_shared<graph::StringVertex>(fromId));
         } catch (...) {}
         try {
-            graph->addVertex(std::make_shared<StringVertex>(toId));
+            graph->addVertex(std::make_shared<graph::StringVertex>(toId));
         } catch (...) {}
         try {
             graph->addEdge(fromId, toId, cost);
@@ -183,9 +183,7 @@ std::string GraphService::loadGraph(const std::string &path, const std::string &
       }
 
     } while (std::getline(fin, line) && (firstLine = split(line), !line.empty()));
-}
-
-  return "Successfully loaded the graph";
+  }
 }
 
 
@@ -196,28 +194,28 @@ void GraphService::saveGraph(const std::string& path) const {
 
   if (graph->getGraphType() == graph::GraphType::Directed) {
     auto *directed = dynamic_cast<graph::DirectedGraph*>(graph.get());
-    for (const auto &from : *directed) {
-      for (const auto &[_, to, cost] : directed->initOutboundEdgesIt(from))
-          fout << from << " " << to << " " << cost << "\n";
+    for (const auto &[fromId, _] : *directed) {
+      for (const auto &[__, to, cost] : directed->initOutboundEdgesIt(fromId))
+          fout << fromId << " " << to << " " << cost << "\n";
     }
-    for (const auto& vertex : *directed) {
-      auto outEdges = directed->initOutboundEdgesIt(vertex);
-      auto inEdges = directed->initInboundEdgesIt(vertex);
+    for (const auto& [vertexId, _] : *directed) {
+      auto outEdges = directed->initOutboundEdgesIt(vertexId);
+      auto inEdges = directed->initInboundEdgesIt(vertexId);
 
       if (outEdges.begin() == outEdges.end() && inEdges.begin() == inEdges.end()) {
-        fout << vertex << "\n";
+        fout << vertexId << "\n";
       }
     }
   }
 
   else if (graph->getGraphType() == graph::GraphType::Undirected) {
     auto *undirected = dynamic_cast<graph::UndirectedGraph*>(graph.get());
-    for (const auto &vertex : *undirected) {
-      auto adjacentEdges = undirected->getAdjacentEdges(vertex);
+    for (const auto &[vertexId, _] : *undirected) {
+      auto adjacentEdges = undirected->getAdjacentEdges(vertexId);
       if (adjacentEdges.empty())
-        fout << vertex << "\n";
+        fout << vertexId << "\n";
       else for (const auto &edge : adjacentEdges) {
-          fout << edge.from << " " << edge.to << " " << edge.weight << "\n";
+          fout << edge.fromId << " " << edge.toId << " " << edge.weight << "\n";
       }
     }
   }
@@ -233,11 +231,11 @@ std::vector<graph::UndirectedGraph> GraphService::getConnectedComponentsOfUnorde
 }
 
 
-std::pair<std::vector<graph::idT>, int> GraphService::getLowestCostWalk(const graph::BaseVertex &start, const graph::BaseVertex &end) const {
+std::pair<std::vector<graph::idT>, int> GraphService::getLowestCostWalk(const graph::idT &startId, const graph::idT &endId) const {
   if (graph->getGraphType() != graph::GraphType::Directed)
     throw std::runtime_error("getLowestCostWalk is only available for directed graphs");
   auto directed = dynamic_cast<graph::DirectedGraph*>(graph.get());
-  return graph::algorithms::getLowestCostWalk(*directed, start, end);
+  return graph::algorithms::getLowestCostWalk(*directed, startId, endId);
 }
 
 

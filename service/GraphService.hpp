@@ -27,11 +27,11 @@ public:
 
   std::vector<graph::Edge> getEdges();
 
-  std::string loadGraph(const std::string &path, const std::string &graphType);
+  void loadGraph(const std::string &path, const std::string &graphType);
   void saveGraph(const std::string& path) const;
 
   std::vector<graph::UndirectedGraph> getConnectedComponentsOfUnorderedGraph() const;
-  std::pair<std::vector<graph::idT>, int> getLowestCostWalk(const graph::BaseVertex &start, const graph::BaseVertex &end) const;
+  std::pair<std::vector<graph::idT>, int> getLowestCostWalk(const graph::idT &startId, const graph::idT &endId) const;
   std::vector<graph::idT> topologicalSort() const;
 
 private:
