@@ -11,6 +11,8 @@ public:
   GraphService(std::unique_ptr<graph::Graph> graph) : graph(std::move(graph)) {}
   GraphService() : GraphService(std::make_unique<graph::UndirectedGraph>()) {}
 
+  graph::GraphType getGraphType() const;
+
   void addVertex(const graph::BaseVertex &vertex);
   void removeVertex(const graph::idT &vertexId);
   bool isVertex(const graph::idT &vertexId);

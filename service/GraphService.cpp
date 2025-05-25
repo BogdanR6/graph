@@ -16,6 +16,9 @@
 #include <sstream>
 #include <algorithm>
 
+graph::GraphType GraphService::getGraphType() const {
+  return graph->getGraphType();
+}
 
 void GraphService::addVertex(const graph::BaseVertex& vertex) {
   graph->addVertex(std::make_shared<graph::BaseVertex>(vertex));
