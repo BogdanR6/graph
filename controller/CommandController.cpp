@@ -30,7 +30,7 @@ CommandController::CommandController(Console& console, GraphService& graphServic
       throw InvalidUsageError("Usage: add_vertex <vertex_id>");
 
     const graph::idT vertexId = args[1];
-    graph::StringVertex vertex(vertexId);
+    auto vertex = std::make_shared<graph::StringVertex>(vertexId);
     graphService.addVertex(vertex);
     return {"Vertex added."};
   });

@@ -12,11 +12,11 @@ endif()
 
 add_subdirectory(graph)
 
-add_executable(graph_app main.cpp 
-  ui/Console.cpp
-  controller/CommandController.cpp 
-  service/GraphService.cpp
-  errors/InvalidInputError.cpp
-)
+add_executable(
+  graph_app main.cpp ui/Console.cpp controller/CommandController.cpp
+            service/GraphService.cpp errors/InvalidInputError.cpp)
 
-target_link_libraries(graph_app PRIVATE graph_lib)
+target_link_libraries(
+  graph_app
+  PRIVATE undirected_graph_lib directed_graph_lib
+          undirected_graph_algorithms_lib directed_graph_algorithms_lib)

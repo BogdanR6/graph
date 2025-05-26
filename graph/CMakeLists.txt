@@ -1,2 +1,3 @@
 add_subdirectory(directed_graph)
 add_subdirectory(undirected_graph)
+add_subdirectory(algorithms)

@@ -13,7 +13,7 @@ public:
 
   graph::GraphType getGraphType() const;
 
-  void addVertex(const graph::BaseVertex &vertex);
+  void addVertex(const graph::VertexSharedPtr &vertex);
   void removeVertex(const graph::idT &vertexId);
   bool isVertex(const graph::idT &vertexId);
     
