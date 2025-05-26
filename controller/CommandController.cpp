@@ -29,7 +29,7 @@ CommandController::CommandController(Console& console, GraphService& graphServic
     if (args.size() != 2)
       throw InvalidUsageError("Usage: add_vertex <vertex_id>");
 
-    std::string vertexId = args[1];
+    const graph::idT vertexId = args[1];
     graph::StringVertex vertex(vertexId);
     graphService.addVertex(vertex);
     return {"Vertex added."};
@@ -40,7 +40,7 @@ CommandController::CommandController(Console& console, GraphService& graphServic
     if (args.size() != 2)
       throw InvalidUsageError("Usage: remove_vertex <vertex_id>");
 
-    std::string vertexId = args[1];
+    const graph::idT vertexId = args[1];
     graphService.removeVertex(vertexId);
     return {"Vertex removed."};
   });
@@ -50,7 +50,7 @@ CommandController::CommandController(Console& console, GraphService& graphServic
     if (args.size() != 2)
       throw InvalidUsageError("Usage: is_vertex <vertex_id>");
 
-    std::string vertexId = args[1];
+    const graph::idT vertexId = args[1];
     return {std::format("Vertex {} is {}in the graph.", vertexId, graphService.isVertex(vertexId) ? "" : "not ")};
   });
 
@@ -59,8 +59,8 @@ CommandController::CommandController(Console& console, GraphService& graphServic
     if (args.size() != 3 && args.size() != 4)
       throw InvalidUsageError("Usage: add_edge <from_vertex_id> <to_vertex_id> [weight = 1]");
 
-    std::string fromVertexId = args[1];
-    std::string toVertexId = args[2];
+    const graph::idT fromVertexId = args[1];
+    const graph::idT toVertexId = args[2];
     int weight = 1; 
     if (args.size() == 4)
       weight = std::stoi(args[3]); 
@@ -74,8 +74,8 @@ CommandController::CommandController(Console& console, GraphService& graphServic
     if (args.size() != 3)
       throw InvalidUsageError("Usage: remove_edge <from_vertex_id> <to_vertex_id>");
 
-    std::string fromVertexId = args[1];
-    std::string toVertexId = args[2];
+    const graph::idT fromVertexId = args[1];
+    const graph::idT toVertexId = args[2];
 
     graphService.removeEdge(fromVertexId, toVertexId);
     return {"Edge removed."};
@@ -87,12 +87,20 @@ CommandController::CommandController(Console& console, GraphService& graphServic
     if (args.size() != 3)
       throw InvalidUsageError("Usage: is_edge <from_vertex_id> <to_vertex_id>");
 
-    std::string fromVertexId = args[1];
-    std::string toVertexId = args[2];
+    const graph::idT fromVertexId = args[1];
+    const graph::idT toVertexId = args[2];
 
+    std::string vertexSeparator = "--";
+    if (graphService.getGraphType() == graph::GraphType::Directed) 
+      vertexSeparator = "->";
     
-    return {"Edge " + fromVertexId + "->" + toVertexId + 
-            (graphService.isEdge(fromVertexId, toVertexId) ? " is " : " is NOT ") + "in the graph"};
+    return {std::format("Edge {} {} {} is{} in the graph", 
+                        fromVertexId, 
+                        vertexSeparator,
+                        toVertexId, 
+                        graphService.isEdge(fromVertexId, toVertexId) ? "" : " not"
+                        )
+    };
   });
 
 
@@ -194,14 +202,14 @@ CommandController::CommandController(Console& console, GraphService& graphServic
   console.registerCommand("get_lowest_cost_walk", [&](const auto& args) -> CommandResult {
     if (args.size() != 3)
       throw InvalidUsageError("Usage: get_shortest_path <start> <end>");
-    std::string start = args[1];
-    std::string end = args[2];
-    auto walkResult = graphService.getLowestCostWalk(start, end);
+    const graph::idT startId = args[1];
+    const graph::idT endId = args[2];
+    auto walkResult = graphService.getLowestCostWalk(startId, endId);
     std::vector<std::string> cheapestPath = walkResult.first;
     int cost = walkResult.second;
     if (cheapestPath.size() == 0)
-      return {"There is not path between " + start + " and " + end};
-    std::string output = "The shortest path between " + start + " and " + end + " is:\n";
+      return {"There is not path between " + startId + " and " + endId};
+    std::string output = std::format("The shortest path between {} and {} is:\n", startId, endId);
     for (const auto &vertex : cheapestPath) {
       output += vertex + " ";
     }
@@ -218,7 +226,7 @@ CommandController::CommandController(Console& console, GraphService& graphServic
       output += v + " ";
     }
     if (output == "")
-      return {"Unable to topologically sort"};
+      return {"Unable to topologically sort!"};
     return {output};
   });
 }
