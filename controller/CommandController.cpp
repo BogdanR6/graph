@@ -1,6 +1,7 @@
 #include "CommandController.hpp"
 #include "../errors/InvalidInputError.cpp"
 #include <string>
+#include <format>
 
 CommandController::CommandController(Console& console, GraphService& graphService)
   : graphService(graphService) {
@@ -38,7 +39,7 @@ CommandController::CommandController(Console& console, GraphService& graphServic
       throw InvalidUsageError("Usage: remove_vertex <vertex_id>");
 
     std::string vertexId = args[1];
-    graphService.removeVertex(vertexId);
+    graphService.emoveVertex(vertexId);
     return {"Vertex removed."};
   });
 
@@ -97,8 +98,14 @@ CommandController::CommandController(Console& console, GraphService& graphServic
   console.registerCommand("list_vertices", [&](const auto& args) -> CommandResult {
     if (args.size() != 1)
       throw InvalidUsageError("Usage: list_vertices");
-
-    return {graphService.getVertices()};
+    std::vector<graph::VertexSharedPtr> vertices = graphService.getVertices();
+    if (vertices.empty())
+      return {"The graph contains no vertices!"};
+    std::string output = (vertices.size() > 1 ? "The vertices in the graph are:\n" : "The vertex in the graph is:\n");
+    for (const auto &vertex : vertices)
+      output += vertex->getId() + "\n";
+    output = output.substr(0, output.size() - 1); // eliminate the last newline character
+    return {output};
   });
 
   console.documentCommand("list_adj", "Display all the vertices adjacent with the given vertex");
@@ -106,8 +113,22 @@ CommandController::CommandController(Console& console, GraphService& graphServic
     if (args.size() != 2)
       throw InvalidUsageError("Usage: list_adj <vertex_id>");
 
-    std::string vertexId = args[1];
-    return {graphService.getAdjacentEdges(vertexId)};
+    graph::idT vertexId = args[1];
+    std::vector<graph::Edge> edges = graphService.getAdjacentEdges(vertexId);
+    if (edges.empty())
+      return {"The vertex is isolated!"};
+    std::string verticesSeparator = "--";
+    if (graphService.getGraphType() == graph::GraphType::Directed) 
+      verticesSeparator = "->";
+    std::string output = std::format("The {} adjacent to {} {}:\n", 
+                                     edges.size() > 1 ? "vertices" : "vertex", 
+                                     vertexId,
+                                     edges.size() > 1 ? "are" : "is"
+                                     );
+    for (const auto &[_, toId, cost] : edges)
+      output += verticesSeparator + " " + toId + " (" + std::to_string(cost) + ")\n";
+    output = output.substr(0, output.size() - 1); // eliminate the last newline character
+    return {};
   });
   
 
@@ -115,8 +136,17 @@ CommandController::CommandController(Console& console, GraphService& graphServic
   console.registerCommand("list_edges", [&](const auto& args) -> CommandResult {
     if (args.size() != 1)
       throw InvalidUsageError("Usage: list_edges");
-
-    return {graphService.getEdges()};
+    std::vector<graph::Edge> edges = graphService.getEdges();
+    if (edges.empty())
+      return {"The graph contains no edges!"};
+    std::string verticesSeparator = "--";
+    if (graphService.getGraphType() == graph::GraphType::Directed) 
+      verticesSeparator = "->";
+    std::string output = "The edges are:\n";
+    for (const auto &[fromId, toId, cost] : edges)
+      output += fromId + " " + verticesSeparator + " " + toId + " (" + std::to_string(cost) + ")\n";
+    output = output.substr(0, output.size() - 1); // eliminate the last newline character
+    return {output};
   });
 
   console.documentCommand("load_graph", "Loads a graph from a file");
@@ -125,7 +155,8 @@ CommandController::CommandController(Console& console, GraphService& graphServic
       throw InvalidUsageError("Usage: load_graph <graph_type> <file_path>");
     std::string graphType = args[1];
     std::string path = args[2];
-    return {graphService.loadGraph(path, graphType)};
+    graphService.loadGraph(path, graphType);
+    return {"Graph loaded successfully"};
   });
 
   console.documentCommand("save_graph", "Saves the graph to file");
@@ -148,8 +179,8 @@ CommandController::CommandController(Console& console, GraphService& graphServic
     int connected_component_id = 1;
     for (const auto &graph : graphs) {
       output += "Component " + std::to_string(connected_component_id++) + "\n";
-      for (const auto &vertex : graph) {
-        output += vertex + " ";
+      for (const auto &[vertexId, _] : graph) {
+        output += vertexId + " ";
       }
       output += "\n";
     }
