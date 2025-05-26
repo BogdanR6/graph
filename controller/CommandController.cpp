@@ -1,5 +1,6 @@
 #include "CommandController.hpp"
 #include "../errors/InvalidInputError.cpp"
+#include "../graph/vertices/StringVertex.hpp"
 #include <string>
 #include <format>
 
@@ -29,7 +30,8 @@ CommandController::CommandController(Console& console, GraphService& graphServic
       throw InvalidUsageError("Usage: add_vertex <vertex_id>");
 
     std::string vertexId = args[1];
-    graphService.addVertex(vertexId);
+    graph::StringVertex vertex(vertexId);
+    graphService.addVertex(vertex);
     return {"Vertex added."};
   });
 
@@ -39,7 +41,7 @@ CommandController::CommandController(Console& console, GraphService& graphServic
       throw InvalidUsageError("Usage: remove_vertex <vertex_id>");
 
     std::string vertexId = args[1];
-    graphService.emoveVertex(vertexId);
+    graphService.removeVertex(vertexId);
     return {"Vertex removed."};
   });
 
