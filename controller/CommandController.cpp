@@ -51,7 +51,7 @@ CommandController::CommandController(Console& console, GraphService& graphServic
       throw InvalidUsageError("Usage: is_vertex <vertex_id>");
 
     std::string vertexId = args[1];
-    return {"Vertex " + vertexId + (graphService.isVertex(vertexId) ? " is " : " is NOT ") + "in the graph"};
+    return {std::format("Vertex {} is {}in the graph.", vertexId, graphService.isVertex(vertexId) ? "" : "not ")};
   });
 
   console.documentCommand("add_edge", "Adds an edge between two existing vertices to the graph");
