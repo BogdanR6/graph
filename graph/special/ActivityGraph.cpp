@@ -1,6 +1,6 @@
 #pragma once
 #include "ActivityGraph.hpp"
-#include "Graph.hpp"
+#include "../abstract/Graph.hpp"
 #include <queue>
 #include <limits>
 

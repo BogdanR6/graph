@@ -1,37 +1,13 @@
 #pragma once
 
-#include "../DirectedGraph.hpp"
+#include "../directed_graph/DirectedGraph.hpp"
+#include "../vertices/ActivityVertex.hpp"
+
 
 namespace graph {
 namespace special {
 
-struct Activity {
-  int id;
-  int duration;
-  int earliestStart = 0;
-  int latestStart = 0;
-  std::string name = "";
-
-  bool operator==(const Activity &other) const {
-    return id == other.id;
-  }
-};
-} // namespace special
-} // namespace graph
-
-namespace std {
-template <>
-struct hash<graph::special::Activity> {
-  std::size_t operator()(const graph::special::Activity &a) const noexcept {
-    return std::hash<int>{}(a.id);
-  }
-};
-}
-
-namespace graph {
-namespace special {
-
-class ActivityGraph : public DirectedGraph<Activity> {
+class ActivityGraph : public DirectedGraph {
 public:
   GraphType getGraphType() const override;
 
