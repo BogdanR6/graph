@@ -1,5 +1,4 @@
 #pragma once
-
 #include "../directed_graph/DirectedGraph.hpp"
 
 

@@ -19,4 +19,5 @@ add_executable(
 target_link_libraries(
   graph_app
   PRIVATE undirected_graph_lib directed_graph_lib
-          undirected_graph_algorithms_lib directed_graph_algorithms_lib)
+          undirected_graph_algorithms_lib directed_graph_algorithms_lib
+          activity_graph_lib)

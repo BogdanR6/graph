@@ -1,4 +1,3 @@
-#pragma once
 #include "ActivityGraph.hpp"
 #include "../abstract/Graph.hpp"
 #include "../vertices/ActivityVertex.hpp"
