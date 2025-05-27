@@ -3,11 +3,13 @@
 #include "../graph/vertices/StringVertex.hpp"
 #include "../errors/InvalidInputError.cpp"
 #include "../graph/directed_graph/DirectedGraph.hpp"
+#include "../graph/special/ActivityGraph.hpp"
 #include "../graph/algorithms/UndirectedGraphAlgorithms.hpp"
 #include "../graph/algorithms/DirectedGraphAlgorithms.hpp"
 #include "../graph/special/ActivityGraph.hpp"
 #include "../graph/abstract/Graph.hpp"
 #include "../graph/vertices/StringVertex.hpp"
+#include "../graph/vertices/ActivityVertex.hpp"
 #include "../graph/undirected_graph/UndirectedGraph.hpp"
 #include <memory>
 #include <stdexcept>
@@ -15,6 +17,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <iostream>
 
 graph::GraphType GraphService::getGraphType() const {
   return graph->getGraphType();
@@ -96,30 +99,77 @@ void GraphService::loadGraph(const std::string &path, const std::string &graphTy
   std::ifstream fin(path);
   if (!fin.is_open())
     throw std::runtime_error("Could not open file '" + path + "' for reading");
-  if (graphType == "undirected")
+
+  //chose the graph type
+  if (graphType == "undirected") {
     graph = std::make_shared<graph::UndirectedGraph>();
-  else if (graphType == "directed") 
+  } else if (graphType == "directed") {
     graph = std::make_shared<graph::DirectedGraph>();
-  else 
+  } else if (graphType == "activity") {
+    graph = std::make_shared<graph::special::ActivityGraph>();
+  } else {
     throw std::runtime_error("'" + graphType + "' is not a valid graph type");
+  }
   graph->clear();
 
-  auto split = [](const std::string &str) {
-    std::istringstream iss(str);
+  // custom split function
+  auto split = [](const std::string &str, const std::string &separator = " ") -> std::vector<std::string> {
+    if (str.empty())
+      return {};
+
     std::vector<std::string> tokens;
-    std::string token;
-    while (iss >> token)
-      tokens.push_back(token);
+    size_t start = 0;
+    size_t end;
+
+    while ((end = str.find(separator, start)) != std::string::npos) {
+      tokens.push_back(str.substr(start, end - start));
+      start = end + separator.length();
+    }
+    tokens.push_back(str.substr(start)); // add the last token
     return tokens;
   };
 
+  std::string separator = " ";
+  if (graphType == "activity")
+    separator = " | ";
+
   std::string line;
   if (!std::getline(fin, line))
-    throw std::runtime_error("Empty file");
+    throw std::runtime_error("Empty file!");
 
-  std::vector<std::string> firstLine = split(line);
+  std::vector<std::string> firstLine = split(line, separator);
 
-  if (firstLine.size() == 2 &&
+  if (graphType == "activity") {
+    std::unordered_multimap<graph::idT, graph::idT> edgesToAdd;
+    auto addActivity = [&](std::vector<std::string> l) {
+      if (l.size() != 4) {
+        throw std::runtime_error("Invalid format for loading an Activity Graph!");
+        // TODO: maybe clear the graph if errors are thrown durring loading
+      }
+      graph::idT activityId = l[0];
+      std::string activityName = l[1];
+      int activityDuration = std::stoi(l[2]);
+      std::vector<graph::idT> inAdjacent = split(l[3], ",");
+      auto activity = std::make_shared<graph::special::Activity>(activityId, activityName, activityDuration);
+      std::cout << std::format("Adding activity: {} {} {}\n", activityId, activityName, activityDuration);
+      graph->addVertex(activity);
+      std::cout << "Done adding activity\n";
+      std::cout << std::format("{} elements to add to addLater\n", inAdjacent.size());
+      std::cout << "Adding to addLater:\n";
+      for (const auto &adjId : inAdjacent) {
+        edgesToAdd.insert({activityId, adjId});
+        std::cout << std::format("Adding edge: {} {}\n", activityId, adjId);
+      }
+      std::cout << "Done adding to addLater:\n";
+    };
+    addActivity(firstLine);
+    while (std::getline(fin, line)) {
+      auto tokens = split(line, separator);
+      addActivity(tokens);
+    }
+    for (const auto &[fromId, toId] : edgesToAdd)
+      graph->addEdge(fromId, toId);
+  } else if (firstLine.size() == 2 &&
     std::all_of(firstLine[0].begin(), firstLine[0].end(), ::isdigit) &&
     std::all_of(firstLine[1].begin(), firstLine[1].end(), ::isdigit)) {
     // Format 1: vertex_count edge_count

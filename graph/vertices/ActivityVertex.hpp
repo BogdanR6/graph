@@ -15,6 +15,7 @@ class Activity : public BaseVertex {
   int latestStart = 0;
 
 public:
+  explicit Activity(idT id, std::string name, int duration) : id(id), name(name), duration(duration) {}
   idT getId() const override {
     return id;
   }
