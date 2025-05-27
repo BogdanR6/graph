@@ -19,7 +19,7 @@ public:
   int getEarliestStart(const int& activityId) const;
   int getLatestStart(const int& activityId) const;
 private:
-  std::vector<Activity> sortedOrder;
+  std::vector<idT> sortedOrder;
   int totalProjectTime = 0;
 };
 

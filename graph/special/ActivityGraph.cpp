@@ -13,27 +13,28 @@ GraphType ActivityGraph::getGraphType() const {
 
 bool ActivityGraph::computeSchedule() {
   // Topological sort using predecessor counters
-  std::unordered_map<int, int> inDegree;
-  std::queue<Activity> q;
+  std::unordered_map<idT, int> inDegree;
+  std::queue<idT> queue;
 
-  for (const auto& activity : *this) {
-    inDegree[activity.id] = this->getAllInnoundVertices(activity).size();
+  for (const auto& [activityId, _] : *this) {
+    inDegree[activityId] = this->getAllInboundVertices(activityId).size();
   }
 
-  for (const auto& activity : *this) {
-    if (inDegree[activity.id] == 0) {
-      q.push(activity);
+  for (const auto& [activityId, _] : *this) {
+    if (inDegree[activityId] == 0) {
+      queue.push(activityId);
     }
   }
 
   sortedOrder.clear();
-  while (!q.empty()) {
-    Activity activity = q.front(); q.pop();
-    sortedOrder.push_back(activity);
-    for (auto& nextActivity : this->getAllOutboundVertices(activity)) {
-      Activity &modNextActivity = this->getVertex(nextActivity);
-      inDegree[modNextActivity.id]--;
-      modNextActivity.earliestStart = std::max(modNextActivity.earliestStart, activity.earliestStart + activity.duration);
+  while (!queue.empty()) {
+    const std::shared_ptr<Activity> activity = std::dynamic_pointer_cast<Activity>(this->getVertex(queue.front())); 
+    queue.pop();
+    sortedOrder.push_back(activity->getId());
+    for (auto& nextActivity : this->getAllOutboundVertices(activity->getId())) {
+      const std::shared_ptr<Activity> modNextActivity = std::dynamic_pointer_cast<Activity>(this->getVertex(nextActivity));
+      inDegree[modNextActivity->id]--;
+      modNextActivity->earliestStart = std::max(modNextActivity->earliestStart, activity->earliestStart + activity->duration);
       if (inDegree[modNextActivity.id] == 0) {
         q.push(modNextActivity);
       }
