@@ -1,6 +1,8 @@
 #pragma once
 #include "ActivityGraph.hpp"
 #include "../abstract/Graph.hpp"
+#include "../vertices/ActivityVertex.hpp"
+#include <memory>
 #include <queue>
 #include <limits>
 
@@ -77,22 +79,23 @@ int ActivityGraph::getTotalProjectTime() const {
   return totalProjectTime;
 }
 
-std::vector<Activity> ActivityGraph::getCriticalActivities() const {
-  std::vector<Activity> result;
-  for (const auto& act : *this) {
-    if (act.earliestStart == act.latestStart) {
-      result.push_back(act);
+std::vector<idT> ActivityGraph::getCriticalActivities() const {
+  std::vector<idT> result;
+  for (const auto& [_, vertex] : *this) {
+    const std::shared_ptr<Activity> activity = std::dynamic_pointer_cast<Activity>(vertex);
+    if (activity->getEarliestStart() == activity->getLatestStart()) {
+      result.push_back(activity->getId());
     }
   }
   return result;
 }
 
-int ActivityGraph::getEarliestStart(const int& activityId) const {
-  return this->getVertex({activityId}).earliestStart;
+int ActivityGraph::getEarliestStart(const idT& activityId) const {
+  return std::dynamic_pointer_cast<Activity>(this->getVertex({activityId}))->getEarliestStart();
 }
 
-int ActivityGraph::getLatestStart(const int& activityId) const {
-  return this->getVertex({activityId}).latestStart;
+int ActivityGraph::getLatestStart(const idT& activityId) const {
+  return std::dynamic_pointer_cast<Activity>(this->getVertex({activityId}))->getLatestStart();
 }
 
 } // namespace special

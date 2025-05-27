@@ -4,7 +4,6 @@
 #include "controller/CommandController.hpp"
 #include "service/GraphService.hpp"
 #include <assert.h>
-#include <iostream>
 
 
 int main() {

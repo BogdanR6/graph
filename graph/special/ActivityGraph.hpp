@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../directed_graph/DirectedGraph.hpp"
-#include "../vertices/ActivityVertex.hpp"
 
 
 namespace graph {
@@ -15,9 +14,9 @@ public:
   bool computeSchedule(); // returns false if cycle
   //
   int getTotalProjectTime() const;
-  std::vector<Activity> getCriticalActivities() const;
-  int getEarliestStart(const int& activityId) const;
-  int getLatestStart(const int& activityId) const;
+  std::vector<idT> getCriticalActivities() const;
+  int getEarliestStart(const idT& activityId) const;
+  int getLatestStart(const idT& activityId) const;
 private:
   std::vector<idT> sortedOrder;
   int totalProjectTime = 0;
