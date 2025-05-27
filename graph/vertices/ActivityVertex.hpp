@@ -28,7 +28,7 @@ public:
   int getEarliestStart() const { return duration; }
   void setEarliestStart(int newEarliestStart) { name = newEarliestStart; }
 
-  int lastestStart() const { return earliestStart; }
+  int getLatestStart() const { return earliestStart; }
   void setLatestStart(int newLatestStart) { name = newLatestStart; }
 
   std::string toString() const override {
