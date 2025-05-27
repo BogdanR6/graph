@@ -1,5 +1,6 @@
 #include "DirectedGraph.hpp"
 #include "iterators/Iterators.hpp"
+#include <format>
 
 namespace graph {
 
@@ -82,11 +83,11 @@ bool DirectedGraph::isEdge(const idT &fromId, const idT &toId) const {
 /* Adds the edge to the graph */
 void DirectedGraph::addEdge(const idT &fromId, const idT &toId, int weight) {
   if (!isVertex(fromId))
-    throw std::runtime_error("from is not in the graph");
+    throw std::runtime_error(std::format("{} is not in the graph!", fromId));
   if (!isVertex(toId))
-    throw std::runtime_error("to is not in the graph");
+    throw std::runtime_error(std::format("{} is not in the graph!", toId));
   if (isEdge(fromId, toId))
-    throw std::runtime_error("The edge already exists");
+    throw std::runtime_error(std::format("The edge({} -> {}) already exists", fromId, toId));
 
   outAdjacency[fromId].insert(toId);
   inAdjacency[toId].insert(fromId);
