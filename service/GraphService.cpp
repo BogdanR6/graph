@@ -15,9 +15,9 @@
 #include <stdexcept>
 #include <string>
 #include <fstream>
-#include <sstream>
 #include <algorithm>
 #include <iostream>
+#include <vector>
 
 graph::GraphType GraphService::getGraphType() const {
   return graph->getGraphType();
@@ -141,32 +141,51 @@ void GraphService::loadGraph(const std::string &path, const std::string &graphTy
 
   if (graphType == "activity") {
     std::unordered_multimap<graph::idT, graph::idT> edgesToAdd;
+    std::unordered_set<graph::idT> finalActivities;
     auto addActivity = [&](std::vector<std::string> l) {
-      if (l.size() != 4) {
+      if (l.size() == 0)
+        return;
+      if (l.size() != 4 && l.size() != 3) {
         throw std::runtime_error("Invalid format for loading an Activity Graph!");
         // TODO: maybe clear the graph if errors are thrown durring loading
       }
-      graph::idT activityId = l[0];
-      std::string activityName = l[1];
-      int activityDuration = std::stoi(l[2]);
-      std::vector<graph::idT> inAdjacent = split(l[3], ",");
-      auto activity = std::make_shared<graph::special::Activity>(activityId, activityName, activityDuration);
-      std::cout << std::format("Adding activity: {} {} {}\n", activityId, activityName, activityDuration);
-      graph->addVertex(activity);
-      std::cout << "Done adding activity\n";
-      std::cout << std::format("{} elements to add to addLater\n", inAdjacent.size());
-      std::cout << "Adding to addLater:\n";
-      for (const auto &adjId : inAdjacent) {
-        edgesToAdd.insert({activityId, adjId});
-        std::cout << std::format("Adding edge: {} {}\n", activityId, adjId);
+      int idIndex = 0;
+      int nameIndex = 1;
+      int durationIndex = 2;
+      int inBoundIndex = 3; 
+      if (l.size() == 3) {
+        nameIndex = -1;
+        durationIndex = 1;
+        inBoundIndex = 2;
       }
-      std::cout << "Done adding to addLater:\n";
+      graph::idT activityId = l[idIndex];
+      std::string activityName = l.size() == 4 ? l[nameIndex] : "";
+      int activityDuration = std::stoi(l[durationIndex]);
+      std::vector<graph::idT> inBound = split(l[inBoundIndex], ",");
+      auto activity = std::make_shared<graph::special::Activity>(activityId, activityName, activityDuration);
+      graph->addVertex(activity);
+      finalActivities.insert(activityId);
+      for (auto adjId : inBound) {
+        if (adjId == "-") // replace - with X (the start)
+          adjId = "X";
+        edgesToAdd.insert({adjId, activityId});
+        if (finalActivities.find(adjId) != finalActivities.end()) finalActivities.erase(adjId);
+      }
     };
+
+    addActivity({"X", "Start", "0", ""}); // fictiv first Activity 
     addActivity(firstLine);
     while (std::getline(fin, line)) {
       auto tokens = split(line, separator);
       addActivity(tokens);
     }
+
+    std::string finalActivitiesStr = "";
+    for (const auto &id : finalActivities)
+      finalActivitiesStr += std::format("{},", id);
+    finalActivitiesStr = finalActivitiesStr.substr(0, finalActivitiesStr.size() - 1);
+    addActivity({"Y", "Final", "0", finalActivitiesStr}); // fictiv final Activity
+    
     for (const auto &[fromId, toId] : edgesToAdd)
       graph->addEdge(fromId, toId);
   } else if (firstLine.size() == 2 &&

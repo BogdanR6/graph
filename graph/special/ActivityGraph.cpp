@@ -32,14 +32,14 @@ bool ActivityGraph::computeSchedule() {
     const std::shared_ptr<Activity> activity = std::dynamic_pointer_cast<Activity>(this->getVertex(queue.front())); 
     queue.pop();
     sortedOrder.push_back(activity->getId());
-    for (auto& nextActivity : this->getAllOutboundVertices(activity->getId())) {
-      const std::shared_ptr<Activity> modNextActivity = std::dynamic_pointer_cast<Activity>(this->getVertex(nextActivity));
-      inDegree[modNextActivity->getId()]--;
-      modNextActivity->setEarliestStart(
-        std::max(modNextActivity->getEarliestStart(), activity->getEarliestStart() + activity->getDuration())
+    for (auto& nextActivityId : this->getAllOutboundVertices(activity->getId())) {
+      const std::shared_ptr<Activity> nextActivity = std::dynamic_pointer_cast<Activity>(this->getVertex(nextActivityId));
+      inDegree[nextActivity->getId()]--;
+      nextActivity->setEarliestStart(
+        std::max(nextActivity->getEarliestStart(), activity->getEarliestStart() + activity->getDuration())
       );
-      if (inDegree[modNextActivity->getId()] == 0) {
-        queue.push(modNextActivity->getId());
+      if (inDegree[nextActivity->getId()] == 0) {
+        queue.push(nextActivity->getId());
       }
     }
   }
