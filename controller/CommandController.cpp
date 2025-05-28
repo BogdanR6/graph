@@ -150,7 +150,7 @@ CommandController::CommandController(Console& console, GraphService& graphServic
     if (edges.empty())
       return {"The graph contains no edges!"};
     std::string verticesSeparator = "--";
-    if (graphService.getGraphType() == graph::GraphType::Directed) 
+    if (graphService.getGraphType() == graph::GraphType::Directed || graphService.getGraphType() == graph::GraphType::Activity) 
       verticesSeparator = "->";
     std::string output = "The edges are:\n";
     for (const auto &[fromId, toId, cost] : edges)
