@@ -91,8 +91,8 @@ int ActivityGraph::getTotalProjectTime() const {
 
 std::vector<idT> ActivityGraph::getCriticalActivities() const {
   std::vector<idT> result;
-  for (const auto& [_, vertex] : *this) {
-    const std::shared_ptr<Activity> activity = std::dynamic_pointer_cast<Activity>(vertex);
+  for (const auto &[_, vertex] : *this) {
+    const std::shared_ptr<Activity> &activity = std::dynamic_pointer_cast<Activity>(vertex);
     if (activity->getEarliestStart() == activity->getLatestStart()) {
       result.push_back(activity->getId());
     }
