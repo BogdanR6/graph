@@ -253,4 +253,15 @@ CommandController::CommandController(Console& console, GraphService& graphServic
       return {"Unable to topologically sort!"};
     return {output};
   });
+
+  console.documentCommand("get_mvc", "Returns the minimum vertex cover");
+  console.registerCommand("get_mvc", [&](const auto& args) -> CommandResult {
+    if (args.size() != 1)
+      throw InvalidUsageError("Usage: get_mvc");
+    std::string output = "";
+    for (const auto &vId : graphService.getMinimumVertexCover()) {
+      output += vId + " ";
+    }
+    return {output};
+  });
 }

@@ -49,10 +49,12 @@ std::vector<idT> getMinimumVertexCover(const UndirectedGraph& graph) {
   int n = vertices.size();
   std::vector<idT> bestCover;
 
+  // 2^n possible subsets
   for (int mask = 0; mask < (1 << n); ++mask) {
+    // The masks binary digits represent which vertices are included
     std::unordered_set<idT> cover;
     for (int i = 0; i < n; ++i) {
-      if (mask & (1 << i)) {
+      if (mask & (1 << i)) { // check if the i'th vertex is included
         cover.insert(vertices[i]);
       }
     }

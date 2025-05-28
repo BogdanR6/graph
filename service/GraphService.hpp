@@ -40,6 +40,9 @@ public:
   int getTotalProjectTime();
   std::vector<graph::idT> getCriticalActivities();
 
+  // for lab 5
+  std::vector<graph::idT> getMinimumVertexCover();
+
 private:
   std::shared_ptr<graph::Graph> graph;
 };

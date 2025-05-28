@@ -336,3 +336,11 @@ std::vector<graph::idT> GraphService::getCriticalActivities() {
     throw std::runtime_error("Cycle detected!");
   return activityGraph->getCriticalActivities();
 }
+
+
+std::vector<graph::idT> GraphService::getMinimumVertexCover() {
+  if (graph->getGraphType() != graph::GraphType::Undirected) 
+    throw std::runtime_error("MinimumVertexCover is only available for Undirected Graphs!");
+  auto undirected = dynamic_cast<graph::UndirectedGraph*>(graph.get());
+  return graph::algorithms::getMinimumVertexCover(*undirected);
+}
