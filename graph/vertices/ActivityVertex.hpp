@@ -12,7 +12,9 @@ class Activity : public BaseVertex {
   std::string name = "";
   int duration;
   int earliestStart = 0;
+  int earliestEnd = 0;
   int latestStart = 0;
+  int latestEnd = 0;
 
 public:
   explicit Activity(idT id, std::string name, int duration) : id(id), name(name), duration(duration) {}
@@ -26,11 +28,17 @@ public:
   int getDuration() const { return duration; }
   void setDuration(int newDuration) { name = newDuration; }
 
-  int getEarliestStart() const { return duration; }
+  int getEarliestStart() const { return earliestStart; }
   void setEarliestStart(int newEarliestStart) { name = newEarliestStart; }
 
-  int getLatestStart() const { return earliestStart; }
+  int getEarliestEnd() const { return earliestEnd; }
+  void setEarliestEnd(int newEarliestEnd) { name = newEarliestEnd; }
+    
+  int getLatestStart() const { return latestStart; }
   void setLatestStart(int newLatestStart) { name = newLatestStart; }
+
+  int getLatestEnd() const { return latestEnd; }
+  void setLatestEnd(int newLatestEnd) { name = newLatestEnd; }
 
   std::string toString() const override {
     std::string displayableName = name.empty() ? "" : std::format(" name: {}", name);
