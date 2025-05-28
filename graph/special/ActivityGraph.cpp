@@ -1,6 +1,7 @@
 #include "ActivityGraph.hpp"
 #include "../abstract/Graph.hpp"
 #include "../vertices/ActivityVertex.hpp"
+#include <algorithm>
 #include <memory>
 #include <queue>
 #include <limits>
@@ -17,58 +18,68 @@ bool ActivityGraph::computeSchedule() {
   std::unordered_map<idT, int> inDegree;
   std::queue<idT> queue;
 
+  // Compute in degree for topological sorting
   for (const auto& [activityId, _] : *this) {
     inDegree[activityId] = this->getAllInboundVertices(activityId).size();
   }
 
+  // Add the vertices with no inbound edges to the queue
   for (const auto& [activityId, _] : *this) {
     if (inDegree[activityId] == 0) {
       queue.push(activityId);
     }
   }
 
+  // Compute topological order and earliest start/end times (forward traversal)
   sortedOrder.clear();
   while (!queue.empty()) {
     const std::shared_ptr<Activity> activity = std::dynamic_pointer_cast<Activity>(this->getVertex(queue.front())); 
     queue.pop();
     sortedOrder.push_back(activity->getId());
+
+    activity->setEarliestEnd(activity->getEarliestStart() + activity->getDuration());
     for (auto& nextActivityId : this->getAllOutboundVertices(activity->getId())) {
       const std::shared_ptr<Activity> nextActivity = std::dynamic_pointer_cast<Activity>(this->getVertex(nextActivityId));
       inDegree[nextActivity->getId()]--;
-      nextActivity->setEarliestStart(
-        std::max(nextActivity->getEarliestStart(), activity->getEarliestStart() + activity->getDuration())
-      );
+
+      int newEarliestStart = std::max(nextActivity->getEarliestStart(), activity->getEarliestEnd());
+      nextActivity->setEarliestStart(newEarliestStart);
+      nextActivity->setEarliestEnd(newEarliestStart + nextActivity->getDuration());
       if (inDegree[nextActivity->getId()] == 0) {
         queue.push(nextActivity->getId());
       }
     }
   }
 
+  // Check for cycles
   if (sortedOrder.size() != this->getNrOfVertices())
     return false; // Cycle detected
 
-  // Total project time is the max finish time among all activities
+  // Compute total project time (the max finish time among all activities)
   int maxTime = 0;
   for (const auto& [_, vertex] : *this) {
     const std::shared_ptr<Activity> activity = std::dynamic_pointer_cast<Activity>(vertex);
-    maxTime = std::max(maxTime, activity->getEarliestStart() + activity->getDuration());
+    maxTime = std::max(maxTime, activity->getEarliestEnd());
   }
   totalProjectTime = maxTime;
 
-  // Compute latestStart times in reverse topological order
+  // Compute latest start/end times (reverse traversal)
   for (auto it = sortedOrder.rbegin(); it != sortedOrder.rend(); ++it) {
-    idT activityId = *it;
-    const std::shared_ptr<Activity> activity = std::dynamic_pointer_cast<Activity>(getVertex(activityId));
-    if (this->getAllOutboundVertices(activityId).empty()) {
-      activity->setLatestStart(activity->getEarliestStart()); // on critical path
+    auto activity = std::dynamic_pointer_cast<Activity>(getVertex(*it));
+
+    if (this->getAllOutboundVertices(*it).empty()) {
+      // Terminal activity: latestEnd = totalProjectTime
+      activity->setLatestEnd(totalProjectTime);
     } else {
-      int minStart = std::numeric_limits<int>::max();
-      for (const auto& nextActivityId : this->getAllOutboundVertices(activityId)) {
-        const std::shared_ptr<Activity> nextActivity = std::dynamic_pointer_cast<Activity>(getVertex(nextActivityId));
-        minStart = std::min(minStart, nextActivity->getLatestStart() - activity->getDuration());
+      int minEnd = std::numeric_limits<int>::max();
+      for (const auto& nextId : this->getAllOutboundVertices(*it)) {
+        auto nextActivity = std::dynamic_pointer_cast<Activity>(getVertex(nextId));
+        minEnd = std::min(minEnd, nextActivity->getLatestStart());
       }
-      activity->setLatestStart(minStart);
+      activity->setLatestEnd(minEnd);
     }
+
+    activity->setLatestStart(activity->getLatestEnd() - activity->getDuration());
   }
 
   return true;
