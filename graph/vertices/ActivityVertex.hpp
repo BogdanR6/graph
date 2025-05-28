@@ -26,19 +26,19 @@ public:
   void setName(const std::string &newName) { name = newName; }
 
   int getDuration() const { return duration; }
-  void setDuration(int newDuration) { name = newDuration; }
+  void setDuration(int newDuration) { duration = newDuration; }
 
   int getEarliestStart() const { return earliestStart; }
-  void setEarliestStart(int newEarliestStart) { name = newEarliestStart; }
+  void setEarliestStart(int newEarliestStart) { earliestStart = newEarliestStart; }
 
   int getEarliestEnd() const { return earliestEnd; }
-  void setEarliestEnd(int newEarliestEnd) { name = newEarliestEnd; }
+  void setEarliestEnd(int newEarliestEnd) { earliestEnd = newEarliestEnd; }
     
   int getLatestStart() const { return latestStart; }
-  void setLatestStart(int newLatestStart) { name = newLatestStart; }
+  void setLatestStart(int newLatestStart) { latestStart = newLatestStart; }
 
   int getLatestEnd() const { return latestEnd; }
-  void setLatestEnd(int newLatestEnd) { name = newLatestEnd; }
+  void setLatestEnd(int newLatestEnd) { latestEnd = newLatestEnd; }
 
   std::string toString() const override {
     std::string displayableName = name.empty() ? "" : std::format(" name: {}", name);

@@ -33,13 +33,13 @@ bool ActivityGraph::computeSchedule() {
   // Compute topological order and earliest start/end times (forward traversal)
   sortedOrder.clear();
   while (!queue.empty()) {
-    const std::shared_ptr<Activity> activity = std::dynamic_pointer_cast<Activity>(this->getVertex(queue.front())); 
+    const std::shared_ptr<Activity> &activity = std::dynamic_pointer_cast<Activity>(this->getVertex(queue.front())); 
     queue.pop();
     sortedOrder.push_back(activity->getId());
 
     activity->setEarliestEnd(activity->getEarliestStart() + activity->getDuration());
     for (auto& nextActivityId : this->getAllOutboundVertices(activity->getId())) {
-      const std::shared_ptr<Activity> nextActivity = std::dynamic_pointer_cast<Activity>(this->getVertex(nextActivityId));
+      const std::shared_ptr<Activity> &nextActivity = std::dynamic_pointer_cast<Activity>(this->getVertex(nextActivityId));
       inDegree[nextActivity->getId()]--;
 
       int newEarliestStart = std::max(nextActivity->getEarliestStart(), activity->getEarliestEnd());
@@ -58,22 +58,22 @@ bool ActivityGraph::computeSchedule() {
   // Compute total project time (the max finish time among all activities)
   int maxTime = 0;
   for (const auto& [_, vertex] : *this) {
-    const std::shared_ptr<Activity> activity = std::dynamic_pointer_cast<Activity>(vertex);
+    const std::shared_ptr<Activity> &activity = std::dynamic_pointer_cast<Activity>(vertex);
     maxTime = std::max(maxTime, activity->getEarliestEnd());
   }
   totalProjectTime = maxTime;
 
   // Compute latest start/end times (reverse traversal)
   for (auto it = sortedOrder.rbegin(); it != sortedOrder.rend(); ++it) {
-    auto activity = std::dynamic_pointer_cast<Activity>(getVertex(*it));
+    const auto &activity = std::dynamic_pointer_cast<Activity>(getVertex(*it));
 
     if (this->getAllOutboundVertices(*it).empty()) {
       // Terminal activity: latestEnd = totalProjectTime
       activity->setLatestEnd(totalProjectTime);
     } else {
       int minEnd = std::numeric_limits<int>::max();
-      for (const auto& nextId : this->getAllOutboundVertices(*it)) {
-        auto nextActivity = std::dynamic_pointer_cast<Activity>(getVertex(nextId));
+      for (const auto &nextId : this->getAllOutboundVertices(*it)) {
+        const auto &nextActivity = std::dynamic_pointer_cast<Activity>(getVertex(nextId));
         minEnd = std::min(minEnd, nextActivity->getLatestStart());
       }
       activity->setLatestEnd(minEnd);
