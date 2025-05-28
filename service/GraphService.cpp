@@ -317,3 +317,22 @@ std::vector<graph::idT> GraphService::topologicalSort() const {
   auto directed = dynamic_cast<graph::DirectedGraph*>(graph.get());
   return graph::algorithms::getTopologicalOrder(*directed);
 }
+
+
+int GraphService::getTotalProjectTime() {
+  if (graph->getGraphType() != graph::GraphType::Activity) 
+    throw std::runtime_error("getToatalProjectTime is only available for ActivityGraph");
+  const auto &activityGraph = std::dynamic_pointer_cast<graph::special::ActivityGraph>(graph);
+  if (!activityGraph->computeSchedule())
+    throw std::runtime_error("Cycle detected!");
+  return activityGraph->getTotalProjectTime();
+}
+
+std::vector<graph::idT> GraphService::getCriticalActivities() {
+  if (graph->getGraphType() != graph::GraphType::Activity) 
+    throw std::runtime_error("getCriticalActivities is only available for ActivityGraph");
+  const auto &activityGraph = std::dynamic_pointer_cast<graph::special::ActivityGraph>(graph);
+  if (!activityGraph->computeSchedule())
+    throw std::runtime_error("Cycle detected!");
+  return activityGraph->getCriticalActivities();
+}

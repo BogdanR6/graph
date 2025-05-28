@@ -36,6 +36,10 @@ public:
   std::pair<std::vector<graph::idT>, int> getLowestCostWalk(const graph::idT &startId, const graph::idT &endId) const;
   std::vector<graph::idT> topologicalSort() const;
 
+  // for activity graph
+  int getTotalProjectTime();
+  std::vector<graph::idT> getCriticalActivities();
+
 private:
   std::shared_ptr<graph::Graph> graph;
 };

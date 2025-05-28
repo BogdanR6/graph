@@ -42,12 +42,14 @@ public:
 
   std::string toString() const override {
     std::string displayableName = name.empty() ? "" : std::format(" name: {}", name);
-    return std::format("{}{} (duration: {}, earliest: {}, latest: {})",
+    return std::format("{}{} (duration: {}, earliestStart: {}, latestStart: {}, earliestEnd: {}, latestEnd: {})",
                        id,
                        displayableName,
                        duration,
                        earliestStart,
-                       latestStart
+                       latestStart,
+                       earliestEnd,
+                       latestEnd
                        );
     }
 };

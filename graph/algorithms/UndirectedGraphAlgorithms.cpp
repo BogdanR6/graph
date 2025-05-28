@@ -38,5 +38,43 @@ std::vector<graph::UndirectedGraph> getConnectedComponentsDFS(const graph::Undir
   }
   return components;
 }
+
+
+std::vector<idT> getMinimumVertexCover(const UndirectedGraph& graph) {
+  std::vector<idT> vertices;
+  for (const auto& [id, _] : graph) {
+    vertices.push_back(id);
+  }
+
+  int n = vertices.size();
+  std::vector<idT> bestCover;
+
+  for (int mask = 0; mask < (1 << n); ++mask) {
+    std::unordered_set<idT> cover;
+    for (int i = 0; i < n; ++i) {
+      if (mask & (1 << i)) {
+        cover.insert(vertices[i]);
+      }
+    }
+
+    // Check if this subset covers all edges
+    bool allCovered = true;
+    for (const Edge& edge : graph.getEdges()) {
+      if (cover.count(edge.fromId) == 0 && cover.count(edge.toId) == 0) {
+        allCovered = false;
+        break;
+      }
+    }
+
+    if (allCovered) {
+      if (bestCover.empty() || cover.size() < bestCover.size()) {
+        bestCover = std::vector<idT>(cover.begin(), cover.end());
+      }
+    }
+  }
+
+  return bestCover;
+}
+
 }//namespace algorightm
 }// namespace graph

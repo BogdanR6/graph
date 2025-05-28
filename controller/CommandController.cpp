@@ -1,6 +1,8 @@
 #include "CommandController.hpp"
 #include "../errors/InvalidInputError.cpp"
 #include "../graph/vertices/StringVertex.hpp"
+#include "ActivityGraph.hpp"
+#include <memory>
 #include <string>
 #include <format>
 
@@ -113,7 +115,29 @@ CommandController::CommandController(Console& console, GraphService& graphServic
       return {"The graph contains no vertices!"};
     std::string output = (vertices.size() > 1 ? "The vertices in the graph are:\n" : "The vertex in the graph is:\n");
     for (const auto &vertex : vertices)
-      output += vertex->getId() + "\n";
+      output += vertex->toString() + "\n";
+    output = output.substr(0, output.size() - 1); // eliminate the last newline character
+    return {output};
+  });
+
+  console.documentCommand("get_project_info", "Display all the information for the current project (only ActivityGraph)");
+  console.registerCommand("get_project_info", [&](const auto& args) -> CommandResult {
+    if (args.size() != 1) // TODO: Fix because the earliestStart and latestStart show as zero
+      throw InvalidUsageError("Usage: get_project_info");
+    if (graphService.getGraphType() != graph::GraphType::Activity)
+      throw InvalidUsageError("get_project_info only works with ActivityGraph!");
+    std::string output = "";
+    output += "Total project time: " + std::to_string(graphService.getTotalProjectTime()) + "\n";
+    output += "Critical activities: ";
+    for (const auto &criticalActivityId : graphService.getCriticalActivities())
+      output += criticalActivityId + " ";
+    output += "\n";
+    std::vector<graph::VertexSharedPtr> vertices = graphService.getVertices();
+    if (vertices.empty())
+      return {"The graph contains no vertices!"};
+    output += "The Activities are: \n";
+    for (const auto &vertex : vertices)
+      output += vertex->toString() + "\n";
     output = output.substr(0, output.size() - 1); // eliminate the last newline character
     return {output};
   });
